@@ -1,6 +1,8 @@
 *.class
-
+#binary files
+bin/
 # eclipse files
+.settings
 .project
 .classpath
 # Package Files #
