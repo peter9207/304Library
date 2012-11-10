@@ -21,27 +21,31 @@ create table Book (
 	timestamp year );
 	
 create table HasAuthor (
-	number callNumber primary key, 
-	varchar2 name);
+	number callNumber, 
+	varchar2 name,
+	CONSTRAINT hasauthor_pk PRIMARY KEY (callNumber,name)
+	);
 
 create table HasSubject (
 	number callNumber, 
 	varchar2 subject,
-	primary key(callNumber, subject));
+	CONSTRAINT hassubject_pk primary key(callNumber, subject));
 	
 create table BookCopy (
 	number callNumber, 
 	number copyNo, 
-	varchar2 status);
+	varchar2 status,
+	CONSTRAINT bookcopy_pk primary key(callNumber,copyNo)
+	);
 	
 create table HoldRequest(
-	number hid, 
+	number hid PRIMARY KEY, 
 	number bid, 
 	number callNumber, 
 	timestamp issuedDate);
 	
 create table Borrowing(
-	number borid, 
+	number borid PRIMARY KEY, 
 	number bid, 
 	number callNumber, 
 	number copyNo, 
@@ -49,7 +53,7 @@ create table Borrowing(
 	timestamp inDate);
 	
 create table Fine (
-	number fid, 
+	number fid PRIMARY KEY, 
 	number amount, 
 	timestamp issuedDate, 
 	timestamp paidDate, 
