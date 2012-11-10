@@ -1,5 +1,7 @@
 package ui;
 
+import java.awt.Container;
+
 import javax.swing.*;
 /**
  * 
@@ -17,6 +19,11 @@ public class MainFrame extends JFrame{
 	
 	public MainFrame (){
 		super(FRAME_TITLE);
+		Container container = getContentPane();
+		
+
+		setJMenuBar(new TopMenuBar());
+		
 		
 	}
 
