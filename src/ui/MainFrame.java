@@ -19,6 +19,7 @@ public class MainFrame extends JFrame{
 	
 	public MainFrame (){
 		super(FRAME_TITLE);
+		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		Container container = getContentPane();
 		
 

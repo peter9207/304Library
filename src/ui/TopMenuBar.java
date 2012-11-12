@@ -35,6 +35,7 @@ public class TopMenuBar extends JMenuBar {
 				
 			}
 		});
+		fileMenu.add(aboutItem);
 		
 		JMenuItem exitItem = new JMenuItem("Exit");
 		exitItem.setEnabled(true);
@@ -48,7 +49,9 @@ public class TopMenuBar extends JMenuBar {
 			}
 			
 		});
+		fileMenu.add(exitItem);
 		
+		this.add(fileMenu);
 	}
 	
 
