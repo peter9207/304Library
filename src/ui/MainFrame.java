@@ -1,8 +1,11 @@
 package ui;
 
 import java.awt.Container;
+import java.awt.Dimension;
 
 import javax.swing.*;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 /**
  * 
  * @author peter9207
@@ -20,12 +23,13 @@ public class MainFrame extends JFrame{
 	public MainFrame (){
 		super(FRAME_TITLE);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		Container container = getContentPane();
 		
+		Container container = getContentPane();
+		container.setPreferredSize(new Dimension(600,800));
 
 		setJMenuBar(new TopMenuBar());
 		
-		
 	}
+	
 
 }

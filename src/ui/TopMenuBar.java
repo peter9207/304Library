@@ -87,6 +87,20 @@ public class TopMenuBar extends JMenuBar {
 		});
 		libMenu.add(removeItem);
 		
+		JMenuItem reportItem = new JMenuItem("Generate Report");
+		reportItem.setEnabled(true);
+		reportItem.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO generate report of all checked out items
+				
+				
+			}
+			
+		});
+		libMenu.add(reportItem);
+		
 		this.add(libMenu);
 	}
 	
