@@ -18,6 +18,7 @@ public class TopMenuBar extends JMenuBar {
 	public TopMenuBar (){
 		super();
 		addFileMenuItem();
+		addLibraryMenuItem();
 	}
 	private void addFileMenuItem(){
 		JMenu fileMenu = new JMenu("File");
@@ -52,6 +53,41 @@ public class TopMenuBar extends JMenuBar {
 		fileMenu.add(exitItem);
 		
 		this.add(fileMenu);
+	}
+	private void addLibraryMenuItem(){
+		JMenu libMenu = new JMenu("Library");
+		libMenu.setMnemonic('L');
+		
+		JMenuItem addItem = new JMenuItem("Add...");
+		addItem.setEnabled(true);
+		addItem.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				System.out.println("Add Item button Pressed!");
+				
+			}
+			
+		});
+		libMenu.add(addItem);
+		
+		
+		JMenuItem removeItem = new JMenuItem("Remove...");
+		removeItem.setEnabled(true);
+		removeItem.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println("Remove button pressed");
+				
+			}
+			
+		});
+		libMenu.add(removeItem);
+		
+		this.add(libMenu);
 	}
 	
 
