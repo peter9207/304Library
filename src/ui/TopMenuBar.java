@@ -22,6 +22,10 @@ import ui.borrower.SearchDialog;
  * all the menu item configuration should be added here
  */
 public class TopMenuBar extends JMenuBar {
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -8419770343363543192L;
 	private Frame owner;
 	
 	public TopMenuBar (Frame f){
