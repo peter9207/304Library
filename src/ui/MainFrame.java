@@ -20,14 +20,17 @@ public class MainFrame extends JFrame{
 	private static final long serialVersionUID = 1L;
 	private static final String FRAME_TITLE = "Library Console";
 	
+	
+	private static final int HEIGHT = 800;
+	private static final int WIDTH = 600;
 	public MainFrame (){
 		super(FRAME_TITLE);
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		
 		Container container = getContentPane();
-		container.setPreferredSize(new Dimension(600,800));
+		container.setPreferredSize(new Dimension(HEIGHT, WIDTH));
 
-		setJMenuBar(new TopMenuBar());
+		setJMenuBar(new TopMenuBar(this));
 		
 	}
 	

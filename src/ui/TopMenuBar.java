@@ -1,8 +1,11 @@
 package ui;
 
+import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
+import javax.swing.JDialog;
+import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
@@ -15,10 +18,15 @@ import javax.swing.JMenuItem;
  * all the menu item configuration should be added here
  */
 public class TopMenuBar extends JMenuBar {
-	public TopMenuBar (){
+	private Frame owner;
+	
+	public TopMenuBar (Frame f){
 		super();
+		owner = f;
 		addFileMenuItem();
 		addLibraryMenuItem();
+		addBorrowerMenuItem();
+		
 	}
 	private void addFileMenuItem(){
 		JMenu fileMenu = new JMenu("File");
@@ -100,8 +108,67 @@ public class TopMenuBar extends JMenuBar {
 			
 		});
 		libMenu.add(reportItem);
-		
 		this.add(libMenu);
+	}
+	
+	private void addBorrowerMenuItem(){
+		JMenu bMenu = new JMenu("Borrower");
+		
+		JMenuItem search = new JMenuItem("Search");
+		search.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				System.out.println("Search button Pressed");
+				
+				JDialog searchDialog = new SearchDialog(owner);
+				searchDialog.setVisible(true);
+				
+				
+			}
+			
+		});
+		bMenu.add(search);
+		
+		JMenuItem accountInfo = new JMenuItem("Account Info");
+		accountInfo.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println("Account Info Button Pressed");
+			}
+			
+		});
+		bMenu.add(accountInfo);
+		
+		JMenuItem hold = new JMenuItem("Place Hold");
+		hold.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println("Place Hold Button Pressed");
+			}
+			
+		});
+		bMenu.add(hold);
+		
+		JMenuItem payFine = new JMenuItem("Pay Fine");
+		payFine.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				// TODO Auto-generated method stub
+				System.out.println("Pay Fine Button Pressed");
+			}
+			
+		});
+		bMenu.add(payFine);
+		
+		this.add(bMenu);
+		
 	}
 	
 
