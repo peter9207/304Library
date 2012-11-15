@@ -19,7 +19,7 @@ public class SearchDialog extends JDialog{
 	private static final long serialVersionUID = 739901659522673107L;
 
 	public SearchDialog(Frame owner){
-		super(owner);
+		super(owner,true);
 		this.setLayout(new FlowLayout(FlowLayout.LEADING));
 		this.setTitle("Search");
 		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);

@@ -12,7 +12,7 @@ public class AccountInfoDialog extends JDialog{
 	private static final long serialVersionUID = -7718138370777865661L;
 
 	public AccountInfoDialog(Frame owner){
-		super(owner);
+		super(owner,true);
 		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.setTitle("Account Information");
 		initComponents();

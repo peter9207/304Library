@@ -11,6 +11,7 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
 import ui.borrower.AccountInfoDialog;
+import ui.borrower.PayFineDialog;
 import ui.borrower.PlaceHoldDialog;
 import ui.borrower.SearchDialog;
 /**
@@ -172,7 +173,7 @@ public class TopMenuBar extends JMenuBar {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				System.out.println("Pay Fine Button Pressed");
-				JDialog payFine = new JDialog(owner);
+				JDialog payFine = new PayFineDialog(owner);
 				payFine.setVisible(true);
 			}
 			
