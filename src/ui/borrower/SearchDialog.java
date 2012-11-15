@@ -44,5 +44,7 @@ public class SearchDialog extends JDialog{
 		JButton searchButton = new JButton();
 		this.add(searchButton);
 		searchButton.setText("Search");
+		
+		
 	}
 }

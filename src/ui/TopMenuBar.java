@@ -10,6 +10,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import ui.borrower.AccountInfoDialog;
+import ui.borrower.PlaceHoldDialog;
 import ui.borrower.SearchDialog;
 /**
  * 
@@ -42,8 +44,6 @@ public class TopMenuBar extends JMenuBar {
 			public void actionPerformed(ActionEvent e) {
 				System.out.println("[INFO] About action Clicked");
 				// TODO Insert action for about button item here
-				
-				
 			}
 		});
 		fileMenu.add(aboutItem);
@@ -140,6 +140,8 @@ public class TopMenuBar extends JMenuBar {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				System.out.println("Account Info Button Pressed");
+				JDialog accountInfo = new AccountInfoDialog(owner);
+				accountInfo.setVisible(true);
 			}
 			
 		});
@@ -152,6 +154,8 @@ public class TopMenuBar extends JMenuBar {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				System.out.println("Place Hold Button Pressed");
+				JDialog placeHold = new PlaceHoldDialog(owner);
+				placeHold.setVisible(true);
 			}
 			
 		});
@@ -164,6 +168,8 @@ public class TopMenuBar extends JMenuBar {
 			public void actionPerformed(ActionEvent e) {
 				// TODO Auto-generated method stub
 				System.out.println("Pay Fine Button Pressed");
+				JDialog payFine = new JDialog(owner);
+				payFine.setVisible(true);
 			}
 			
 		});
