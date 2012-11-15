@@ -18,6 +18,10 @@ public class SearchDialog extends JDialog{
 	 */
 	private static final long serialVersionUID = 739901659522673107L;
 
+	private static final int TEXT_BOX_HEIGHT = 30;
+	private static final int TEXT_BOX_WIDTH = 80;
+	
+	
 	public SearchDialog(Frame owner){
 		super(owner,true);
 		this.setLayout(new FlowLayout(FlowLayout.LEADING));
@@ -34,7 +38,7 @@ public class SearchDialog extends JDialog{
 		
 		JTextField textField = new JTextField();
 		this.add(textField);
-		textField.setPreferredSize(new Dimension(80, 30));
+		textField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
 		
 		String[] searchStrings = {"Title", "Author", "Subject"};
 		JComboBox picker = new JComboBox(searchStrings);

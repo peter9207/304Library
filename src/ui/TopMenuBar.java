@@ -126,7 +126,6 @@ public class TopMenuBar extends JMenuBar {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				// TODO Auto-generated method stub
 				System.out.println("Search button Pressed");
 				
 				JDialog searchDialog = new SearchDialog(owner);
@@ -143,7 +142,6 @@ public class TopMenuBar extends JMenuBar {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				System.out.println("Account Info Button Pressed");
 				JDialog accountInfo = new AccountInfoDialog(owner);
 				accountInfo.setVisible(true);
@@ -157,7 +155,6 @@ public class TopMenuBar extends JMenuBar {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				System.out.println("Place Hold Button Pressed");
 				JDialog placeHold = new PlaceHoldDialog(owner);
 				placeHold.setVisible(true);
@@ -171,7 +168,6 @@ public class TopMenuBar extends JMenuBar {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
 				System.out.println("Pay Fine Button Pressed");
 				JDialog payFine = new PayFineDialog(owner);
 				payFine.setVisible(true);
