@@ -14,6 +14,13 @@ import ui.borrower.AccountInfoDialog;
 import ui.borrower.PayFineDialog;
 import ui.borrower.PlaceHoldDialog;
 import ui.borrower.SearchDialog;
+import ui.clerk.AddBorrowerDialog;
+import ui.clerk.CheckOutDialog;
+import ui.clerk.CheckOverdueDialog;
+import ui.clerk.ReturnDialog;
+import ui.librarian.AddBookDialog;
+import ui.librarian.CheckOutReportDialog;
+import ui.librarian.MostPopularDialog;
 /**
  * 
  * @author peter9207
@@ -35,6 +42,8 @@ public class TopMenuBar extends JMenuBar {
 		addFileMenuItem();
 		addLibraryMenuItem();
 		addBorrowerMenuItem();
+		addClerkMenuItem();
+		addLibrarianMenuItem();
 		
 	}
 	private void addFileMenuItem(){
@@ -179,6 +188,114 @@ public class TopMenuBar extends JMenuBar {
 		this.add(bMenu);
 		
 	}
-	
+	private void addClerkMenuItem(){
+		JMenu cMenu = new JMenu("Clerk");
+		
+		JMenuItem addBorrower = new JMenuItem("Add new borrower...");
+		addBorrower.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("Add borrower button Pressed");
+				
+				JDialog AddBorrowerDialog = new AddBorrowerDialog(owner);
+				AddBorrowerDialog.setVisible(true);
+				
+				
+			}
+			
+		});
+		cMenu.add(addBorrower);
+		
+		JMenuItem checkOut = new JMenuItem("Check out item");
+		checkOut.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Check Out Button Pressed");
+				JDialog CheckOutDialog = new CheckOutDialog(owner);
+				CheckOutDialog.setVisible(true);
+			}
+			
+		});
+		cMenu.add(checkOut);
+		
+		JMenuItem processReturn = new JMenuItem("Process Return");
+		processReturn.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Process return button Pressed");
+				JDialog ReturnDialog = new ReturnDialog(owner);
+				ReturnDialog.setVisible(true);
+			}
+			
+		});
+		cMenu.add(processReturn);
+		
+		JMenuItem checkOverdue = new JMenuItem("Check Overdue");
+		checkOverdue.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Check overdue Button Pressed");
+				JDialog CheckOverdueDialog = new CheckOverdueDialog(owner);
+				CheckOverdueDialog.setVisible(true);
+			}
+			
+		});
+		cMenu.add(checkOverdue);
+		
+		this.add(cMenu);
+		
+	}
+	private void addLibrarianMenuItem(){
+		JMenu lMenu = new JMenu("Librarian");
+		
+		JMenuItem addBook = new JMenuItem("Add new book...");
+		addBook.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("Add book button Pressed");
+				
+				JDialog AddBookDialog = new AddBookDialog(owner);
+				AddBookDialog.setVisible(true);
+				
+				
+			}
+			
+		});
+		lMenu.add(addBook);
+		
+		JMenuItem checkOutReport = new JMenuItem("Generate checked-out items report");
+		checkOutReport.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Check-Out report Button Pressed");
+				JDialog CheckOutReportDialog = new CheckOutReportDialog(owner);
+				CheckOutReportDialog.setVisible(true);
+			}
+			
+		});
+		lMenu.add(checkOutReport);
+		
+		JMenuItem mostPopular = new JMenuItem("Most popular books...");
+		mostPopular.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				System.out.println("Process return button Pressed");
+				JDialog MostPopularDialog = new MostPopularDialog(owner);
+				MostPopularDialog.setVisible(true);
+			}
+			
+		});
+		lMenu.add(mostPopular);
+		
+		this.add(lMenu);
+		
+	}
 
 }

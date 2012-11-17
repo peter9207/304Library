@@ -1,0 +1,107 @@
+package ui.clerk;
+
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.GridLayout;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.text.JTextComponent;
+
+public class CheckOutDialog extends JDialog{
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -7718138370777865661L;
+
+	public CheckOutDialog(Frame owner){
+		super(owner,true);
+		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
+		this.setSize(new Dimension(400,300));
+		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setTitle("Check out items");
+		initComponents();
+
+	}
+
+	private void initComponents(){
+		
+		final DefaultListModel books = new DefaultListModel();
+		JList items = new JList(books);
+		
+		
+		JPanel bid = new JPanel();
+		bid.setLayout(new FlowLayout(FlowLayout.LEADING));
+		JLabel bidLabel = new JLabel();
+		bidLabel.setText("BID: ");
+		bid.add(bidLabel);
+		
+		JTextField bidField = new JTextField();
+		bidField.setPreferredSize(new Dimension(80,30));
+		bid.add(bidField);
+		this.add(bid);
+		
+		JPanel cnumber = new JPanel();
+		JLabel cNoLabel = new JLabel();
+		cNoLabel.setText("Call Number: ");
+		cnumber.add(cNoLabel);
+		
+		final JTextField callNumber = new JTextField();
+		callNumber.setPreferredSize(new Dimension(120,30));
+		cnumber.add(callNumber);
+		
+		JButton addBook = new JButton();
+		addBook.setText("Add book to check out");
+		addBook.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				System.out.println("Add book button Pressed");
+				JTextArea callNumberTextComp = new JTextArea();
+				final String callNo = callNumber.getText();
+				books.addElement(callNo);
+			}
+		});
+				
+		cnumber.add(addBook);
+		this.add(cnumber);
+		
+		JPanel listViewer = new JPanel();
+		
+		JScrollPane listScroller = new JScrollPane(items);
+
+		items.setSelectionMode(ListSelectionModel.SINGLE_INTERVAL_SELECTION);
+		items.setLayoutOrientation(JList.VERTICAL);
+		items.setVisibleRowCount(-1);
+		listScroller.setPreferredSize(new Dimension(250, 80));
+		items.setSize(new Dimension(200,200));
+
+		listViewer.add(listScroller);
+		
+		JPanel checkOutPanel = new JPanel();
+		
+		JButton checkOut = new JButton();
+		checkOut.setText("Check Out Books");
+		checkOutPanel.add(checkOut);
+
+		this.add(listViewer);
+		this.add(checkOutPanel);
+
+
+	}
+
+}
