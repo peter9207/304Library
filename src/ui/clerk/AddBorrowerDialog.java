@@ -1,16 +1,32 @@
 package ui.clerk;
 
+import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
 import java.awt.GridLayout;
+import java.awt.Insets;
+import java.awt.Rectangle;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.sql.Date;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 
+import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+
+import ui.ErrorDialog;
+
+import main.MainLibrary;
 
 public class AddBorrowerDialog extends JDialog{
 	/**
@@ -23,7 +39,10 @@ public class AddBorrowerDialog extends JDialog{
 	private static final long serialVersionUID = -7718138370777865661L;
 
 	public AddBorrowerDialog(Frame owner){
-		super(owner,true);
+		super(owner,false);
+		Dimension d = this.getToolkit().getScreenSize();
+		Rectangle r = this.getBounds();
+		this.setLocation( (d.width - r.width)/4, (d.height - r.height)/4 );
 		this.setLayout(new GridLayout(0,1));
 		this.setSize(new Dimension(250,400));
 		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -37,10 +56,10 @@ public class AddBorrowerDialog extends JDialog{
 		JPanel bidPanel = new JPanel();
 		bidPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
-		JLabel bidLabel = new JLabel("BID: ");
+		JLabel bidLabel = new JLabel("*BID: ");
 		bidPanel.add(bidLabel);
 
-		JTextField bidField = new JTextField();
+		final JTextField bidField = new JTextField();
 		bidPanel.add(bidField);
 		bidField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
 
@@ -51,11 +70,12 @@ public class AddBorrowerDialog extends JDialog{
 		JPanel passwordPanel = new JPanel();
 		passwordPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
-		JLabel passwordLabel = new JLabel("Password:");
+		JLabel passwordLabel = new JLabel("*Password:");
 		passwordPanel.add(passwordLabel);
 
-		JTextField passwordField = new JTextField();
+		final JTextField passwordField = new JTextField();
 		passwordPanel.add(passwordField);
+
 		passwordField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
 
 		this.add(passwordPanel);
@@ -68,7 +88,7 @@ public class AddBorrowerDialog extends JDialog{
 		JLabel nameLabel = new JLabel("Name:");
 		namePanel.add(nameLabel);
 
-		JTextField nameField = new JTextField();
+		final JTextField nameField = new JTextField();
 		namePanel.add(nameField);
 		nameField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
 
@@ -81,7 +101,7 @@ public class AddBorrowerDialog extends JDialog{
 		JLabel addressLabel = new JLabel("Address:");
 		addressPanel.add(addressLabel);
 
-		JTextField addressField = new JTextField();
+		final JTextField addressField = new JTextField();
 		addressPanel.add(addressField);
 		addressField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
 
@@ -94,7 +114,7 @@ public class AddBorrowerDialog extends JDialog{
 		JLabel emailAddressLabel = new JLabel("Email:");
 		emailAddressPanel.add(emailAddressLabel);
 
-		JTextField emailAddressField = new JTextField();
+		final JTextField emailAddressField = new JTextField();
 		emailAddressPanel.add(emailAddressField);
 		emailAddressField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
 
@@ -104,10 +124,10 @@ public class AddBorrowerDialog extends JDialog{
 		JPanel sinOrStNoPanel = new JPanel();
 		sinOrStNoPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
-		JLabel sinOrStNoLabel = new JLabel("SIN or Student No:");
+		JLabel sinOrStNoLabel = new JLabel("*SIN or Student No:");
 		sinOrStNoPanel.add(sinOrStNoLabel);
 
-		JTextField sinOrStNoField = new JTextField();
+		final JTextField sinOrStNoField = new JTextField();
 		sinOrStNoPanel.add(sinOrStNoField);
 		sinOrStNoField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
 
@@ -117,10 +137,10 @@ public class AddBorrowerDialog extends JDialog{
 		JPanel expiryDatePanel = new JPanel();
 		expiryDatePanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
-		JLabel expiryDateLabel = new JLabel("Expires on:");
+		JLabel expiryDateLabel = new JLabel("Expires on (dd/MM/yy):");
 		expiryDatePanel.add(expiryDateLabel);
 
-		JTextField expiryDateField = new JTextField();
+		final JTextField expiryDateField = new JTextField();
 		expiryDatePanel.add(expiryDateField);
 		expiryDateField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
 
@@ -133,7 +153,7 @@ public class AddBorrowerDialog extends JDialog{
 		JLabel typeLabel = new JLabel("Type:");
 		typePanel.add(typeLabel);
 
-		JTextField typeField = new JTextField();
+		final JTextField typeField = new JTextField();
 		typePanel.add(typeField);
 		typeField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
 
@@ -144,12 +164,49 @@ public class AddBorrowerDialog extends JDialog{
 		//				picker.setSelectedIndex(0);
 		//				this.add(picker);
 
-		JButton searchButton = new JButton();
-		this.add(searchButton);
-		searchButton.setText("Add");
+		JButton addButton = new JButton();
+		this.add(addButton);
+		addButton.setText("Add");
+		addButton.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent e) {
+
+				if (!bidField.getText().isEmpty() && !passwordField.getText().isEmpty() && !sinOrStNoField.getText().isEmpty()) {
+					System.out.println("Add button Clicked");
+					int bid, sinOrStNo;
+					String name, password, address, email, type, expiry = null;
+					bid = Integer.parseInt(bidField.getText().toString());
+					sinOrStNo = Integer.parseInt(sinOrStNoField.getText()
+							.toString());
+					name = nameField.getText().toString();
+					address = addressField.getText().toString();
+					email = emailAddressField.getText().toString();
+					type = typeField.getText().toString();
+					password = passwordField.getText().toString();
+					expiry = expiryDateField.getText().toString();
+					SimpleDateFormat fm = new SimpleDateFormat("dd/MM/yy");
+					java.util.Date utilDate = null;
+					try {
+						utilDate = fm.parse(expiry);
+					} catch (ParseException e1) {
+						ErrorDialog error = new ErrorDialog("Please input the date in the following format: dd/MM/yy, e.g. 31/01/12");
+					}
+					java.sql.Date sqlDate = new java.sql.Date(
+							utilDate.getTime());
+					MainLibrary.databaseHandler.addBorrower(bid, password,
+							name, address, email, sinOrStNo, sqlDate, type);
+				}
+				else
+				{
+					ErrorDialog error = new ErrorDialog("Please fill in all the required fields marked with (*)");
+				}
+			}
+		});
 
 
 	}
+	
 }
 
 

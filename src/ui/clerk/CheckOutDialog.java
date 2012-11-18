@@ -6,6 +6,7 @@ import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.Vector;
 
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
@@ -22,6 +23,10 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.text.JTextComponent;
 
+import ui.ErrorDialog;
+
+import main.MainLibrary;
+
 public class CheckOutDialog extends JDialog{
 	/**
 	 * 
@@ -29,7 +34,7 @@ public class CheckOutDialog extends JDialog{
 	private static final long serialVersionUID = -7718138370777865661L;
 
 	public CheckOutDialog(Frame owner){
-		super(owner,true);
+		super(owner,false);
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.setSize(new Dimension(400,300));
 		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -50,7 +55,7 @@ public class CheckOutDialog extends JDialog{
 		bidLabel.setText("BID: ");
 		bid.add(bidLabel);
 		
-		JTextField bidField = new JTextField();
+		final JTextField bidField = new JTextField();
 		bidField.setPreferredSize(new Dimension(80,30));
 		bid.add(bidField);
 		this.add(bid);
@@ -96,11 +101,29 @@ public class CheckOutDialog extends JDialog{
 		
 		JButton checkOut = new JButton();
 		checkOut.setText("Check Out Books");
+		checkOut.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					Vector<Integer> callNumbers = new Vector<>();
+					for (int j = 0; j < books.getSize(); j++) {
+						callNumbers.add(Integer.parseInt(books.getElementAt(j).toString()));
+					}				
+					MainLibrary.databaseHandler.checkOut(callNumbers, Integer.parseInt(bidField.getText().toString()));
+					books.clear();
+				} catch (NumberFormatException e) {
+					ErrorDialog errorDialog = new ErrorDialog("Please use only numbers for the Call Number field.");
+					
+				}
+			}
+			
+		});
 		checkOutPanel.add(checkOut);
 
 		this.add(listViewer);
 		this.add(checkOutPanel);
-
+		
 
 	}
 

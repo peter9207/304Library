@@ -12,10 +12,15 @@ import ui.MainFrame;
  * 
  */
 public class MainLibrary {
+	public static DatabaseHandler databaseHandler;
+	public static OracleConnection con;
 	public static void main(String [] args){
 		JFrame frame = new MainFrame();
 		frame.pack();
 		frame.setVisible(true);
+		con = new OracleConnection();
+		databaseHandler = new DatabaseHandler();
+		//asdasd
 	}
 
 }

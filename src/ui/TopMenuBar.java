@@ -10,6 +10,8 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 
+import main.MainLibrary;
+
 import ui.borrower.AccountInfoDialog;
 import ui.borrower.PayFineDialog;
 import ui.borrower.PlaceHoldDialog;
@@ -61,6 +63,8 @@ public class TopMenuBar extends JMenuBar {
 			}
 		});
 		fileMenu.add(aboutItem);
+		
+
 		
 		JMenuItem exitItem = new JMenuItem("Exit");
 		exitItem.setEnabled(true);

@@ -1,60 +1,64 @@
 create table borrower(
-	NUMBER bid primary key,
-	VARCHAR2 password not null,
-	varchar2 name,
-	varchar2 address,
-	varchar2 emailAddress, 
-	number sinOrStNo, 
-	timestamp expiryDate, 
-	varchar2 type);
+	bid NUMBER primary key,
+	password VARCHAR2(25) not null,
+	name VARCHAR2(25),
+	address VARCHAR2(255),
+	emailAddress VARCHAR2(25), 
+	sinOrStNo number, 
+	expiryDate timestamp, 
+	type VARCHAR2(25));
 	
 create table borrower_type(
-	varchar2 type primary key ,
-	timestamp bookTimeLimit);
+	type VARCHAR2(25) primary key ,
+	bookTimeLimit timestamp);
 	
 create table Book (
-	number callNumber primary key , 
-	number isbn,
-	varchar2 title, 
-	varchar2 mainAuthor, 
-	varchar2 publisher, 
-	timestamp year );
+	callNumber number primary key , 
+	isbn number,
+	title VARCHAR2(25), 
+	mainAuthor VARCHAR2(25) , 
+	publisher VARCHAR2(25) , 
+	year number);
 	
 create table HasAuthor (
-	number callNumber, 
-	varchar2 name,
+	callNumber number , 
+	name VARCHAR2(25) ,
 	CONSTRAINT hasauthor_pk PRIMARY KEY (callNumber,name)
 	);
 
 create table HasSubject (
-	number callNumber, 
-	varchar2 subject,
+	callNumber number, 
+	subject VARCHAR2(25),
 	CONSTRAINT hassubject_pk primary key(callNumber, subject));
 	
 create table BookCopy (
-	number callNumber, 
-	number copyNo, 
-	varchar2 status,
+	callNumber number, 
+	copyNo number, 
+	status VARCHAR2(25),
 	CONSTRAINT bookcopy_pk primary key(callNumber,copyNo)
 	);
 	
 create table HoldRequest(
-	number hid PRIMARY KEY, 
-	number bid, 
-	number callNumber, 
-	timestamp issuedDate);
+	hid number PRIMARY KEY, 
+	bid number, 
+	callNumber number, 
+	issuedDate timestamp);
 	
 create table Borrowing(
-	number borid PRIMARY KEY, 
-	number bid, 
-	number callNumber, 
-	number copyNo, 
-	timestamp outDate, 
-	timestamp inDate);
+	borid number PRIMARY KEY, 
+	bid number, 
+	callNumber number, 
+	copyNo number, 
+	outDate timestamp, 
+	inDate timestamp);
 	
 create table Fine (
-	number fid PRIMARY KEY, 
-	number amount, 
-	timestamp issuedDate, 
-	timestamp paidDate, 
-	number borid);
+	fid number PRIMARY KEY, 
+	amount number, 
+	issuedDate timestamp, 
+	paidDate timestamp, 
+	borid number);
+
+create sequence hid_sequence;
+create sequence borid_sequence;
+create sequence copyNo_sequence;
