@@ -38,8 +38,10 @@ public class AddBorrowerDialog extends JDialog{
 
 	private static final long serialVersionUID = -7718138370777865661L;
 
-	public AddBorrowerDialog(Frame owner){
-		super(owner,false);
+	Frame owner;
+	public AddBorrowerDialog(Frame f){
+		super(f,false);
+		owner = f;
 		Dimension d = this.getToolkit().getScreenSize();
 		Rectangle r = this.getBounds();
 		this.setLocation( (d.width - r.width)/4, (d.height - r.height)/4 );
@@ -190,7 +192,7 @@ public class AddBorrowerDialog extends JDialog{
 					try {
 						utilDate = fm.parse(expiry);
 					} catch (ParseException e1) {
-						ErrorDialog error = new ErrorDialog("Please input the date in the following format: dd/MM/yy, e.g. 31/01/12");
+						new ErrorDialog(owner,"Please input the date in the following format: dd/MM/yy, e.g. 31/01/12");
 					}
 					java.sql.Date sqlDate = new java.sql.Date(
 							utilDate.getTime());
@@ -199,7 +201,7 @@ public class AddBorrowerDialog extends JDialog{
 				}
 				else
 				{
-					ErrorDialog error = new ErrorDialog("Please fill in all the required fields marked with (*)");
+					new ErrorDialog(owner,"Please fill in all the required fields marked with (*)");
 				}
 			}
 		});
