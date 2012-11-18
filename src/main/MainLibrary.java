@@ -1,5 +1,7 @@
 package main;
 
+import java.util.concurrent.TimeUnit;
+
 import javax.swing.JFrame;
 
 import ui.MainFrame;
@@ -21,6 +23,12 @@ public class MainLibrary {
 		con = new OracleConnection();
 		databaseHandler = new DatabaseHandler();
 		//asdasd
+		System.out.print(TimeUnit.MILLISECONDS.convert(2*7 ,TimeUnit.DAYS));
+		System.out.println("\n");
+		System.out.print(TimeUnit.MILLISECONDS.convert(12*7 ,TimeUnit.DAYS));
+		System.out.println("\n");
+		System.out.print(TimeUnit.MILLISECONDS.convert(6*7 ,TimeUnit.DAYS));
+		System.out.println("\n");
 	}
 
 }

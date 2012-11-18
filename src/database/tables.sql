@@ -10,8 +10,15 @@ create table borrower(
 	
 create table borrower_type(
 	type VARCHAR2(25) primary key ,
-	bookTimeLimit timestamp);
+	bookTimeLimit long);
 	
+
+insert into borrower_type VALUES('Student', 1209600000);
+insert into borrower_type VALUES('Faculty', 7257600000);
+insert into borrower_type VALUES('Staff', 3628800000);
+insert into borrower_type VALUES('General Public', 3628800000);
+
+
 create table Book (
 	callNumber number primary key , 
 	isbn number,
@@ -62,3 +69,4 @@ create table Fine (
 create sequence hid_sequence;
 create sequence borid_sequence;
 create sequence copyNo_sequence;
+create sequence bid_sequence;

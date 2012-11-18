@@ -5,10 +5,13 @@ import java.io.PrintStream;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 
 import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.table.DefaultTableModel;
+
+import ui.ErrorDialog;
 
 public class DatabaseHandler {
 	public DatabaseHandler(){
@@ -158,34 +161,33 @@ public class DatabaseHandler {
 		return books;	
 	}
 
-	public void addBorrower(int bid, String password, String name,
+	public void addBorrower(String password, String name,
 			String address, String email, int sinOrStNo, Date sqlDate,
 			String type) {
 		PreparedStatement ps;
 		try
 		{
-			ps = MainLibrary.con.con.prepareStatement("INSERT INTO borrower VALUES (?,?,?,?,?,?,?,?)");
+			ps = MainLibrary.con.con.prepareStatement("INSERT INTO borrower VALUES (bid_sequence.nextval,?,?,?,?,?,?,?)");
 
-			ps.setInt(1, bid);
-			ps.setString(2, password);
-			ps.setString(3, name);
+			ps.setString(1, password);
+			ps.setString(2, name);
 			if(address.length()==0){
+				ps.setString(3, null);
+			}
+			else
+			{
+				ps.setString(3, address);
+			}
+			if(email.length()==0){
 				ps.setString(4, null);
 			}
 			else
 			{
-				ps.setString(4, address);
+				ps.setString(4, email);
 			}
-			if(email.length()==0){
-				ps.setString(5, null);
-			}
-			else
-			{
-				ps.setString(5, email);
-			}
-			ps.setInt(6, sinOrStNo);
-			ps.setDate(7, sqlDate);
-			ps.setString(8, type);
+			ps.setInt(5, sinOrStNo);
+			ps.setDate(6, sqlDate);
+			ps.setString(7, type);
 
 			ps.executeUpdate();
 
@@ -248,38 +250,78 @@ public class DatabaseHandler {
 		}
 	}
 	public void checkOut(Vector<Integer> callNumbers, int bid) {
-//		PreparedStatement ps;
-//		Statement stmt;
-//		ResultSet rs;
-//		try
-//		{
-//			stmt = MainLibrary.con.con.createStatement();
-//
-//			rs = stmt.executeQuery("select bid from fine f,borrowing b where b.borid = f.borid AND bid="+bid);
-//
-//			// get info on ResultSet
-//			ResultSetMetaData rsmd = rs.getMetaData();
-//			if (!rs.next()){
-//				rs = stmt.executeQuery("select copyNo from borrowing where callNumber ="+callNumbers.get(i));
-//				ps = MainLibrary.con.con.prepareStatement("INSERT INTO borrowing VALUES (borid_sequence.nextval,?,?,?.?,?)");
-//				java.util.Date today = new java.util.Date();
-//				java.sql.Date todaysql = new java.sql.Date(today.getTime());
-//
-//				ps.setInt(1, bid);
-//				ps.setInt(2, callNumber);
-//				ps.setInt(3, copyNumber);
-//				ps.setDate(3, todaysql);
-//
-//
-//				ps.executeUpdate();
-//
-//				// commit work 
-//				MainLibrary.con.con.commit();
-//
-//				System.out.println("hold request placed");
-//				ps.close();
-//			}
-//		}
+		PreparedStatement ps;
+		Statement stmt;
+		ResultSet rs,rs2,rs3;
+		try
+		{
+			stmt = MainLibrary.con.con.createStatement();
+
+			rs = stmt.executeQuery("select bid from fine f,borrowing b where b.borid = f.borid AND bid="+bid);
+
+
+			// get info on ResultSet
+			if (!rs.next()){
+				System.out.println("works here fine check");
+
+				rs2 = stmt.executeQuery("select bookTimeLimit from borrower b, borrower_type bt where bt.type LIKE b.type AND b.bid = "+bid);
+				if (rs2.next()) {
+					long limit = rs2.getLong("bookTimeLimit");
+					System.out.println(limit);
+					for (int i = 0; i < callNumbers.size(); i++) {
+						rs3 = stmt
+								.executeQuery("select * from bookcopy where callNumber ="
+										+ callNumbers.get(i)
+										+ "AND status LIKE 'in'");
+						if (rs3.next()) {
+							System.out.println("works herecopyno");
+							int copyNumber = rs3.getInt("copyNo");
+							System.out.println(copyNumber);
+							ps = MainLibrary.con.con
+									.prepareStatement("INSERT INTO borrowing VALUES (borid_sequence.nextval,?,?,?,?,?)");
+							java.util.Date today = new java.util.Date();
+							java.sql.Date todaysql2 = new java.sql.Date(
+									today.getTime());
+							java.sql.Date inDate2 = new java.sql.Date(
+									today.getTime() + limit);
+							ps.setInt(1, bid);
+							ps.setInt(2, callNumbers.get(i));
+							System.out.println(callNumbers.get(i));
+							ps.setInt(3, copyNumber);
+							ps.setDate(4, todaysql2);
+							ps.setDate(5, inDate2);
+							System.out.println(inDate2.toString());
+							ps.executeUpdate();
+							System.out.println(callNumbers.get(i).toString()
+									+ " checked out!\n");
+							ps = MainLibrary.con.con.prepareStatement("UPDATE bookcopy SET status='out' where callNumber=? AND copyNo = ?");
+							ps.setInt(1, callNumbers.get(i));
+							ps.setInt(2, copyNumber);
+							ps.executeUpdate();
+							MainLibrary.con.con.commit();
+							
+							ps.close();
+						} else {
+							System.out.println("NO COPIES from bookcopy");
+						}
+					}
+				}
+				else{
+					System.out.println("Borrower does not exist.");
+				}
+			}
+		} catch (SQLException e) {
+			ErrorDialog error = new ErrorDialog("Something went wrong somewhere in the Database Handler, method: check out. Damn.");
+			e.printStackTrace();
+
+		}
 	}
+	public void returnBook(int parseInt) {
+		// TODO Auto-generated method stub
+		
+	}
+
 }
+
+
 

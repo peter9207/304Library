@@ -3,12 +3,16 @@ package ui.clerk;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+
+import main.MainLibrary;
 
 public class ReturnDialog extends JDialog{
 
@@ -37,11 +41,19 @@ public class ReturnDialog extends JDialog{
 		JLabel label = new JLabel("Call Number");
 		this.add(label);
 		
-		JTextField text = new JTextField();
+		final JTextField text = new JTextField();
 		text.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
 		this.add(text);
 		
 		JButton button = new JButton("Return");
+		button.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				MainLibrary.databaseHandler.returnBook(Integer.parseInt(text.getText().toString()));
+			}
+			
+		});
 		this.add(button);
 	}
 }
