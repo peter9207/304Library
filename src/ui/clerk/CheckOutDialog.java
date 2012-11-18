@@ -33,8 +33,10 @@ public class CheckOutDialog extends JDialog{
 	 */
 	private static final long serialVersionUID = -7718138370777865661L;
 
+	private Frame owner;
 	public CheckOutDialog(Frame owner){
 		super(owner,false);
+		this.owner = owner;
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.setSize(new Dimension(400,300));
 		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -106,14 +108,14 @@ public class CheckOutDialog extends JDialog{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					Vector<Integer> callNumbers = new Vector<>();
+					Vector<Integer> callNumbers = new Vector<Integer>();
 					for (int j = 0; j < books.getSize(); j++) {
 						callNumbers.add(Integer.parseInt(books.getElementAt(j).toString()));
 					}				
 					MainLibrary.databaseHandler.checkOut(callNumbers, Integer.parseInt(bidField.getText().toString()));
 					books.clear();
 				} catch (NumberFormatException e) {
-					ErrorDialog errorDialog = new ErrorDialog("Please use only numbers for the Call Number field.");
+					new ErrorDialog(owner,"Please use only numbers for the Call Number field.");
 					
 				}
 			}

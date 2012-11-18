@@ -14,15 +14,17 @@ import javax.swing.table.DefaultTableModel;
 import ui.ErrorDialog;
 
 public class DatabaseHandler {
+	private static OracleConnection con;
 	public DatabaseHandler(){
 
+		con = new OracleConnection();
 	}
 	public void addBook(int callNumber, int isbn, String title, String mainAuthor, String publisher, int year, boolean copy){
 		PreparedStatement ps;
 		try
 		{
 			if (!copy) {
-				ps = MainLibrary.con.con
+				ps = con.con
 						.prepareStatement("INSERT INTO book VALUES (?,?,?,?,?,?)");
 				ps.setInt(1, callNumber);
 				ps.setInt(2, isbn);
@@ -32,18 +34,18 @@ public class DatabaseHandler {
 				ps.setInt(6, year);
 				ps.executeUpdate();
 				// commit work 
-				MainLibrary.con.con.commit();
+				con.con.commit();
 				ps.close();
 			}
 			else
 			{
-				ps = MainLibrary.con.con
+				ps = con.con
 						.prepareStatement("INSERT INTO BookCopy VALUES (?,copyNo_sequence.nextval,?)");
 				ps.setInt(1, callNumber);
 				ps.setString(2, "in");
 				ps.executeUpdate();
 				// commit work 
-				MainLibrary.con.con.commit();
+				con.con.commit();
 				ps.close();
 			}
 		}
@@ -53,7 +55,7 @@ public class DatabaseHandler {
 			try 
 			{
 				// undo the insert
-				MainLibrary.con.con.rollback();	
+				con.con.rollback();	
 			}
 			catch (SQLException ex2)
 			{
@@ -67,29 +69,23 @@ public class DatabaseHandler {
 		String title, mainAuthor, publisher;
 		Statement  stmt;
 		ResultSet  rs;
-		Vector<Object[]> books = new Vector<>();
-		Object[] book = new Object[6];
+		Vector<Object[]> books = new Vector<Object[]>();
 		int counter = 0;
 
 		try
 		{
-			stmt = MainLibrary.con.con.createStatement();
+			stmt = con.con.createStatement();
 
 			if (searchTerms.isEmpty()){
-				rs = stmt.executeQuery("SELECT * FROM book");
+				rs = stmt.executeQuery("select * from book b, (select callNumber, count(copyNo) as \"IN\" FROM bookcopy GROUP BY callNumber) c where b.callNumber=c.callNumber");
 			}
-			else rs = stmt.executeQuery("SELECT * FROM book WHERE UPPER("+searchParameters.toUpperCase()+") LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%'");
+			else rs = stmt.executeQuery("SELECT * FROM book b,bookcopy bc WHERE b.UPPER("+searchParameters.toUpperCase()+") LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%' AND b.callNumber = bc.callNumber");
 
 			// get info on ResultSet
 			ResultSetMetaData rsmd = rs.getMetaData();
 
 			// get number of columns
 			int numCols = rsmd.getColumnCount();
-
-			System.out.println(" ");
-			String[] col = new String[numCols];
-			String format = "%1$-15s|%2$-15s|%3$-15s|%4$-15s|%5$-15s|%5$-15s|";
-			String format2 = "|%1$-30s|%2$-40s|%3$-40s|%4$-40s|%5$-40s|%3$-20s|";
 			//display column names;
 			for (int i = 0; i < numCols; i++)
 			{
@@ -97,8 +93,6 @@ public class DatabaseHandler {
 
 				System.out.printf("%-15.15s", rsmd.getColumnName(i+1));
 			}
-			//		  books.addElement(String.format(format, col[0],col[1],col[2],col[3],col[4],col[5]));
-
 			System.out.println(" ");
 
 			while(rs.next())
@@ -167,7 +161,8 @@ public class DatabaseHandler {
 		PreparedStatement ps;
 		try
 		{
-			ps = MainLibrary.con.con.prepareStatement("INSERT INTO borrower VALUES (bid_sequence.nextval,?,?,?,?,?,?,?)");
+			ps = con.con.prepareStatement("INSERT INTO borrower VALUES (bid_sequence.nextval,?,?,?,?,?,?,?)");
+
 
 			ps.setString(1, password);
 			ps.setString(2, name);
@@ -192,7 +187,7 @@ public class DatabaseHandler {
 			ps.executeUpdate();
 
 			// commit work 
-			MainLibrary.con.con.commit();
+			con.con.commit();
 
 			ps.close();
 		}
@@ -202,7 +197,7 @@ public class DatabaseHandler {
 			try 
 			{
 				// undo the insert
-				MainLibrary.con.con.rollback();	
+				con.con.rollback();	
 			}
 			catch (SQLException ex2)
 			{
@@ -216,19 +211,20 @@ public class DatabaseHandler {
 		PreparedStatement ps;
 		try
 		{
-			ps = MainLibrary.con.con.prepareStatement("INSERT INTO HoldRequest VALUES (hid_sequence.nextval,?,?,?)");
+			ps = con.con.prepareStatement("INSERT INTO HoldRequest VALUES (hid_sequence.nextval,?,?,?)");
 			java.util.Date today = new java.util.Date();
 			java.sql.Date todaysql = new java.sql.Date(today.getTime());
 
 			ps.setInt(1, bid);
 			ps.setInt(2, callNumber);
 			ps.setDate(3, todaysql);
-
+			
+			
 
 			ps.executeUpdate();
 
 			// commit work 
-			MainLibrary.con.con.commit();
+			con.con.commit();
 
 			System.out.println("hold request placed");
 			ps.close();
@@ -240,7 +236,7 @@ public class DatabaseHandler {
 			try 
 			{
 				// undo the insert
-				MainLibrary.con.con.rollback();	
+				con.con.rollback();	
 			}
 			catch (SQLException ex2)
 			{
@@ -250,34 +246,33 @@ public class DatabaseHandler {
 		}
 	}
 	public void checkOut(Vector<Integer> callNumbers, int bid) {
-		PreparedStatement ps;
+		PreparedStatement ps = null;
 		Statement stmt;
 		ResultSet rs,rs2,rs3;
+		int copyNumber;
 		try
 		{
-			stmt = MainLibrary.con.con.createStatement();
+			stmt = con.con.createStatement();
 
 			rs = stmt.executeQuery("select bid from fine f,borrowing b where b.borid = f.borid AND bid="+bid);
 
 
 			// get info on ResultSet
 			if (!rs.next()){
-				System.out.println("works here fine check");
-
 				rs2 = stmt.executeQuery("select bookTimeLimit from borrower b, borrower_type bt where bt.type LIKE b.type AND b.bid = "+bid);
 				if (rs2.next()) {
 					long limit = rs2.getLong("bookTimeLimit");
-					System.out.println(limit);
 					for (int i = 0; i < callNumbers.size(); i++) {
+						System.out.println(i);
 						rs3 = stmt
-								.executeQuery("select * from bookcopy where callNumber ="
-										+ callNumbers.get(i)
-										+ "AND status LIKE 'in'");
+								.executeQuery("select * from bookcopy where callNumber = "
+										+ callNumbers.get(i).toString()
+										+ " AND status LIKE 'in'");
+						System.out.println("query ran");
 						if (rs3.next()) {
-							System.out.println("works herecopyno");
-							int copyNumber = rs3.getInt("copyNo");
+							copyNumber = rs3.getInt("copyNo");
 							System.out.println(copyNumber);
-							ps = MainLibrary.con.con
+							ps = con.con
 									.prepareStatement("INSERT INTO borrowing VALUES (borid_sequence.nextval,?,?,?,?,?)");
 							java.util.Date today = new java.util.Date();
 							java.sql.Date todaysql2 = new java.sql.Date(
@@ -287,37 +282,84 @@ public class DatabaseHandler {
 							ps.setInt(1, bid);
 							ps.setInt(2, callNumbers.get(i));
 							System.out.println(callNumbers.get(i));
+
+							System.out.println(copyNumber);
 							ps.setInt(3, copyNumber);
 							ps.setDate(4, todaysql2);
 							ps.setDate(5, inDate2);
 							System.out.println(inDate2.toString());
 							ps.executeUpdate();
+							ps.close();
+
 							System.out.println(callNumbers.get(i).toString()
 									+ " checked out!\n");
-							ps = MainLibrary.con.con.prepareStatement("UPDATE bookcopy SET status='out' where callNumber=? AND copyNo = ?");
+							ps = con.con.prepareStatement("UPDATE bookcopy SET status='out' WHERE callNumber = ? AND copyNo = ?");
 							ps.setInt(1, callNumbers.get(i));
 							ps.setInt(2, copyNumber);
 							ps.executeUpdate();
-							MainLibrary.con.con.commit();
-							
 							ps.close();
+
+							System.out.println("executed update");
+
 						} else {
-							System.out.println("NO COPIES from bookcopy");
+							ErrorDialog error = new ErrorDialog(null,"No more copies available! Unable to check out.");
 						}
 					}
+					con.con.commit();
+					
+					ps.close();
 				}
 				else{
 					System.out.println("Borrower does not exist.");
 				}
 			}
 		} catch (SQLException e) {
-			ErrorDialog error = new ErrorDialog("Something went wrong somewhere in the Database Handler, method: check out. Damn.");
+			ErrorDialog error = new ErrorDialog(null, "Something went wrong somewhere in the Database Handler, method: check out. Damn.");
 			e.printStackTrace();
 
 		}
 	}
-	public void returnBook(int parseInt) {
-		// TODO Auto-generated method stub
+	public void returnBook(int callNumber, int copyNumber) {
+		PreparedStatement ps;
+		Statement stmt = null;
+		ResultSet rs;
+		
+		try {
+			ps = con.con.prepareStatement("DELETE FROM borrowing WHERE callNumber = ? AND copyNo = ?");
+			ps.setInt(1, callNumber);
+			ps.setInt(2, copyNumber);
+			ps.executeUpdate();
+			ps.close();
+			stmt = con.con.createStatement();
+			rs = stmt.executeQuery("SELECT * FROM holdrequest WHERE callNumber = "+callNumber);
+			if(rs.next()){
+				
+				ps = con.con.prepareStatement("UPDATE bookcopy SET status = 'on-hold' where callNumber = ? AND copyNo = ?");
+				ps.setInt(1, callNumber);
+				ps.setInt(2, copyNumber);
+				ps.executeUpdate();
+				ps.close();
+System.out.println("asd");
+				ps = con.con.prepareStatement("DELETE FROM holdrequest WHERE hid = 2");
+				System.out.println(rs.getInt("hid"));
+				ps.executeUpdate();
+				ps.close();
+
+			}
+			else
+			{
+			ps = con.con.prepareStatement("UPDATE bookcopy SET status = 'in' where callNumber = ? AND copyNo = ?");
+			ps.setInt(1, callNumber);
+			ps.setInt(2, copyNumber);
+			ps.executeUpdate();
+			}
+			
+			con.con.commit();
+			ps.close();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		
 	}
 

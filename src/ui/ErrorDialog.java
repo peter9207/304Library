@@ -1,7 +1,9 @@
 package ui;
 
+import java.awt.Container;
 import java.awt.Dialog;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GridBagConstraints;
 import java.awt.GridBagLayout;
 import java.awt.Insets;
@@ -11,24 +13,28 @@ import java.awt.event.ActionListener;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComponent;
+import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class ErrorDialog {
-	public ErrorDialog(String msg){
-		final JFrame mainFrame = new JFrame("Error!");
+public class ErrorDialog extends JDialog{
+	public ErrorDialog(Frame f,String msg){
+		super(f, true);
+		//final JFrame mainFrame = new JFrame("Error!");
+		this.setTitle("ERROR!");
 		
 		JLabel errorLabel = new JLabel(msg);
 		JButton okButton = new JButton("OK");
-		JPanel contentPane = new JPanel();
-		mainFrame.setContentPane(contentPane);
-		mainFrame.setMinimumSize(new Dimension(200,100));
+		Container contentPane = this.getContentPane();
+		
+		this.setMinimumSize(new Dimension(200,100));
 		GridBagLayout gb = new GridBagLayout();
 		GridBagConstraints c = new GridBagConstraints();
 
 		contentPane.setLayout(gb);
-		contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		//contentPane.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
 
 		// place the username label 
 		c.gridwidth = GridBagConstraints.RELATIVE;
@@ -39,24 +45,24 @@ public class ErrorDialog {
 		c.insets = new Insets(5, 10, 10, 10);
 		c.anchor = GridBagConstraints.CENTER;
 		gb.setConstraints(okButton, c);
-		mainFrame.add(okButton);
+		contentPane.add(okButton);
 
 		okButton.addActionListener(new ActionListener(){
 			@Override
 			public void actionPerformed(ActionEvent e){
-				mainFrame.dispose();
+				dispose();
 			}
 		});
 		// size the window to obtain a best fit for the components
-		mainFrame.pack();
+		this.pack();
 
 		// center the frame
-		Dimension d = mainFrame.getToolkit().getScreenSize();
-		Rectangle r = mainFrame.getBounds();
-		mainFrame.setLocation( (d.width - r.width)/2, (d.height - r.height)/2 );
+		Dimension d = this.getToolkit().getScreenSize();
+		Rectangle r = this.getBounds();
+		this.setLocation( (d.width - r.width)/2, (d.height - r.height)/2 );
 
 		// make the window visible
-		mainFrame.setVisible(true);
-		mainFrame.setAlwaysOnTop(true);
+		this.setVisible(true);
+		this.setAlwaysOnTop(true);
 	}
 }

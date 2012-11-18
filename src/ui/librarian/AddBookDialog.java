@@ -31,10 +31,11 @@ public class AddBookDialog extends JDialog{
 
 	private static final int TEXT_BOX_HEIGHT = 30;
 	private static final int TEXT_BOX_WIDTH = 80;
-	
+	private Frame owner;
 	
 	public AddBookDialog(Frame owner){
 		super(owner,false);
+		this.owner = owner;
 		this.setLayout(new GridLayout(0,1));
 		this.setTitle("Add new book");
 		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
@@ -167,12 +168,12 @@ public class AddBookDialog extends JDialog{
 								title, mainAuthor, publisher, year, copyBox.isSelected());
 					} catch (NumberFormatException e1) {
 						// TODO Auto-generated catch block
-						ErrorDialog error = new ErrorDialog("Call Number, ISBN, and year must be in a number format.");
+						new ErrorDialog(owner,"Call Number, ISBN, and year must be in a number format.");
 					}
 				}
 				else
 				{
-					ErrorDialog error = new ErrorDialog("Some fields are empty. Please check your inputs again.");
+					new ErrorDialog(owner,"Some fields are empty. Please check your inputs again.");
 				}
 			}
 		});
