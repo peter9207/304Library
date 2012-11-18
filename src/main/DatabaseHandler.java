@@ -11,15 +11,17 @@ import javax.swing.JList;
 import javax.swing.table.DefaultTableModel;
 
 public class DatabaseHandler {
+	private static OracleConnection con;
 	public DatabaseHandler(){
 
+		con = new OracleConnection();
 	}
 	public void addBook(int callNumber, int isbn, String title, String mainAuthor, String publisher, int year, boolean copy){
 		PreparedStatement ps;
 		try
 		{
 			if (!copy) {
-				ps = MainLibrary.con.con
+				ps = con.con
 						.prepareStatement("INSERT INTO book VALUES (?,?,?,?,?,?)");
 				ps.setInt(1, callNumber);
 				ps.setInt(2, isbn);
@@ -29,18 +31,18 @@ public class DatabaseHandler {
 				ps.setInt(6, year);
 				ps.executeUpdate();
 				// commit work 
-				MainLibrary.con.con.commit();
+				con.con.commit();
 				ps.close();
 			}
 			else
 			{
-				ps = MainLibrary.con.con
+				ps = con.con
 						.prepareStatement("INSERT INTO BookCopy VALUES (?,copyNo_sequence.nextval,?)");
 				ps.setInt(1, callNumber);
 				ps.setString(2, "in");
 				ps.executeUpdate();
 				// commit work 
-				MainLibrary.con.con.commit();
+				con.con.commit();
 				ps.close();
 			}
 		}
@@ -50,7 +52,7 @@ public class DatabaseHandler {
 			try 
 			{
 				// undo the insert
-				MainLibrary.con.con.rollback();	
+				con.con.rollback();	
 			}
 			catch (SQLException ex2)
 			{
@@ -64,13 +66,13 @@ public class DatabaseHandler {
 		String title, mainAuthor, publisher;
 		Statement  stmt;
 		ResultSet  rs;
-		Vector<Object[]> books = new Vector<>();
+		Vector<Object[]> books = new Vector<Object[]>();
 		Object[] book = new Object[6];
 		int counter = 0;
 
 		try
 		{
-			stmt = MainLibrary.con.con.createStatement();
+			stmt = con.con.createStatement();
 
 			if (searchTerms.isEmpty()){
 				rs = stmt.executeQuery("SELECT * FROM book");
@@ -164,7 +166,7 @@ public class DatabaseHandler {
 		PreparedStatement ps;
 		try
 		{
-			ps = MainLibrary.con.con.prepareStatement("INSERT INTO borrower VALUES (?,?,?,?,?,?,?,?)");
+			ps = con.con.prepareStatement("INSERT INTO borrower VALUES (?,?,?,?,?,?,?,?)");
 
 			ps.setInt(1, bid);
 			ps.setString(2, password);
@@ -190,7 +192,7 @@ public class DatabaseHandler {
 			ps.executeUpdate();
 
 			// commit work 
-			MainLibrary.con.con.commit();
+			con.con.commit();
 
 			ps.close();
 		}
@@ -200,7 +202,7 @@ public class DatabaseHandler {
 			try 
 			{
 				// undo the insert
-				MainLibrary.con.con.rollback();	
+				con.con.rollback();	
 			}
 			catch (SQLException ex2)
 			{
@@ -214,7 +216,7 @@ public class DatabaseHandler {
 		PreparedStatement ps;
 		try
 		{
-			ps = MainLibrary.con.con.prepareStatement("INSERT INTO HoldRequest VALUES (hid_sequence.nextval,?,?,?)");
+			ps = con.con.prepareStatement("INSERT INTO HoldRequest VALUES (hid_sequence.nextval,?,?,?)");
 			java.util.Date today = new java.util.Date();
 			java.sql.Date todaysql = new java.sql.Date(today.getTime());
 
@@ -226,7 +228,7 @@ public class DatabaseHandler {
 			ps.executeUpdate();
 
 			// commit work 
-			MainLibrary.con.con.commit();
+			con.con.commit();
 
 			System.out.println("hold request placed");
 			ps.close();
@@ -238,7 +240,7 @@ public class DatabaseHandler {
 			try 
 			{
 				// undo the insert
-				MainLibrary.con.con.rollback();	
+				con.con.rollback();	
 			}
 			catch (SQLException ex2)
 			{

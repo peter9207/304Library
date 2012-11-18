@@ -106,7 +106,7 @@ public class CheckOutDialog extends JDialog{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				try {
-					Vector<Integer> callNumbers = new Vector<>();
+					Vector<Integer> callNumbers = new Vector<Integer>();
 					for (int j = 0; j < books.getSize(); j++) {
 						callNumbers.add(Integer.parseInt(books.getElementAt(j).toString()));
 					}				
