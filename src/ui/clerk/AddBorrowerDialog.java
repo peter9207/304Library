@@ -17,6 +17,7 @@ import java.text.SimpleDateFormat;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -55,17 +56,17 @@ public class AddBorrowerDialog extends JDialog{
 
 	private void initComponents(){
 		//Panel - BID
-		JPanel bidPanel = new JPanel();
-		bidPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
-
-		JLabel bidLabel = new JLabel("*BID: ");
-		bidPanel.add(bidLabel);
-
-		final JTextField bidField = new JTextField();
-		bidPanel.add(bidField);
-		bidField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
-
-		this.add(bidPanel);
+//		JPanel bidPanel = new JPanel();
+//		bidPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
+//
+//		JLabel bidLabel = new JLabel("*BID: ");
+//		bidPanel.add(bidLabel);
+//
+//		final JTextField bidField = new JTextField();
+//		bidPanel.add(bidField);
+//		bidField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
+//
+//		this.add(bidPanel);
 
 
 		//Panel - password
@@ -154,8 +155,10 @@ public class AddBorrowerDialog extends JDialog{
 
 		JLabel typeLabel = new JLabel("Type:");
 		typePanel.add(typeLabel);
-
-		final JTextField typeField = new JTextField();
+		
+		final String[] typeStrings = {"Student","Faculty","Staff","General Public"};
+		final JComboBox typeField = new JComboBox(typeStrings);
+		typeField.setSelectedIndex(0);
 		typePanel.add(typeField);
 		typeField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
 
@@ -174,17 +177,16 @@ public class AddBorrowerDialog extends JDialog{
 			@Override
 			public void actionPerformed(ActionEvent e) {
 
-				if (!bidField.getText().isEmpty() && !passwordField.getText().isEmpty() && !sinOrStNoField.getText().isEmpty()) {
+				if (!passwordField.getText().isEmpty() && !sinOrStNoField.getText().isEmpty()) {
 					System.out.println("Add button Clicked");
-					int bid, sinOrStNo;
+					int sinOrStNo;
 					String name, password, address, email, type, expiry = null;
-					bid = Integer.parseInt(bidField.getText().toString());
 					sinOrStNo = Integer.parseInt(sinOrStNoField.getText()
 							.toString());
 					name = nameField.getText().toString();
 					address = addressField.getText().toString();
 					email = emailAddressField.getText().toString();
-					type = typeField.getText().toString();
+					type = typeStrings[typeField.getSelectedIndex()];
 					password = passwordField.getText().toString();
 					expiry = expiryDateField.getText().toString();
 					SimpleDateFormat fm = new SimpleDateFormat("dd/MM/yy");
@@ -196,7 +198,7 @@ public class AddBorrowerDialog extends JDialog{
 					}
 					java.sql.Date sqlDate = new java.sql.Date(
 							utilDate.getTime());
-					MainLibrary.databaseHandler.addBorrower(bid, password,
+					MainLibrary.databaseHandler.addBorrower(password,
 							name, address, email, sinOrStNo, sqlDate, type);
 				}
 				else
