@@ -54,7 +54,7 @@ public class ErrorDialog extends JDialog{
 			}
 		});
 		// size the window to obtain a best fit for the components
-		
+		this.pack();
 
 		// center the frame
 		Dimension d = this.getToolkit().getScreenSize();
