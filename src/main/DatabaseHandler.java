@@ -16,6 +16,9 @@ public class DatabaseHandler {
 
 		con = new OracleConnection();
 	}
+	public OracleConnection getConnection(){
+		return con;
+	}
 	public void addBook(int callNumber, int isbn, String title, String mainAuthor, String publisher, int year, boolean copy){
 		PreparedStatement ps;
 		try
