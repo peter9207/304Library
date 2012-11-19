@@ -6,6 +6,8 @@ import java.awt.Frame;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.Vector;
 
 import javax.swing.BoxLayout;
@@ -48,7 +50,7 @@ public class CheckOutDialog extends JDialog{
 	private void initComponents(){
 		
 		final DefaultListModel books = new DefaultListModel();
-		JList items = new JList(books);
+		final JList items = new JList(books);
 		
 		
 		JPanel bid = new JPanel();
@@ -99,6 +101,19 @@ public class CheckOutDialog extends JDialog{
 
 		listViewer.add(listScroller);
 		
+		items.addMouseListener(new MouseAdapter() {
+		    public void mouseClicked(MouseEvent evt) {
+		        JList list = (JList)evt.getSource();
+		        if (evt.getClickCount() == 2) {
+		            int index = list.locationToIndex(evt.getPoint());
+		            try {
+						books.remove(index);
+					} catch (Exception e) {
+					}
+		        }
+		        
+		    }
+		});
 		JPanel checkOutPanel = new JPanel();
 		
 		JButton checkOut = new JButton();

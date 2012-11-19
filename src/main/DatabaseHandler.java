@@ -19,11 +19,10 @@ public class DatabaseHandler {
 
 		con = new OracleConnection();
 	}
-	public void addBook(int callNumber, int isbn, String title, String mainAuthor, String publisher, int year, boolean copy){
+	public void addBook(int callNumber, int isbn, String title, String mainAuthor, String publisher, int year, int copy, Vector<String> subVector, Vector<String> authorVector){
 		PreparedStatement ps;
 		try
 		{
-			if (!copy) {
 				ps = con.con
 						.prepareStatement("INSERT INTO book VALUES (?,?,?,?,?,?)");
 				ps.setInt(1, callNumber);
@@ -32,22 +31,50 @@ public class DatabaseHandler {
 				ps.setString(4, mainAuthor);
 				ps.setString(5, publisher);
 				ps.setInt(6, year);
-				ps.executeUpdate();
+				try {
+					ps.executeUpdate();
+				} catch (Exception e1) {
+					new ErrorDialog(null, "This book already exists. Check the 'Copy?' box if you wish to create copies of this book.");
+				}
+				
+				ps = con.con.prepareStatement("INSERT INTO HASSUBJECT VALUES (?,?) ");
+				
+				if (!subVector.isEmpty()) {
+					for (int i = 0; i < subVector.size(); i++) {
+						ps.setInt(1, callNumber);
+						ps.setString(2, subVector.get(i));
+						try {
+							ps.executeUpdate();
+						} catch (Exception e) {
+						}
+					}
+				}
+				if (!authorVector.isEmpty()) {
+					for (int i = 0; i < authorVector.size(); i++) {
+						ps.setInt(1, callNumber);
+						ps.setString(2, authorVector.get(i));
+						try {
+							ps.executeUpdate();
+						} catch (Exception e) {
+
+						}
+					}
+				}
 				// commit work 
 				con.con.commit();
 				ps.close();
-			}
-			else
-			{
-				ps = con.con
-						.prepareStatement("INSERT INTO BookCopy VALUES (?,copyNo_sequence.nextval,?)");
-				ps.setInt(1, callNumber);
-				ps.setString(2, "in");
-				ps.executeUpdate();
-				// commit work 
-				con.con.commit();
-				ps.close();
-			}
+				
+					for (int i = 0; i < copy; i++) {
+						ps = con.con
+								.prepareStatement("INSERT INTO BookCopy VALUES (?,copyNo_sequence.nextval,?)");
+						ps.setInt(1, callNumber);
+						ps.setString(2, "in");
+						ps.executeUpdate();
+						// commit work 
+						con.con.commit();
+						ps.close();
+					}
+			
 		}
 		catch (SQLException ex)
 		{
@@ -234,6 +261,26 @@ public class DatabaseHandler {
 	}
 	public void placeHold(int bid, int callNumber) {
 
+		try {
+			ResultSet rs;
+			Statement stmt = con.con.createStatement();
+			rs = stmt.executeQuery("Select * from holdrequest where callNumber = "+callNumber);
+			if(!rs.next()){
+				new ErrorDialog(null, "This book does not exist. Unable to place hold.");
+				return;
+			}
+			rs = stmt.executeQuery("Select * from borrower where bid = "+bid);
+			if(!rs.next()){
+				new ErrorDialog(null, "This account does not exist. Check your BID again.");
+				return;
+			}
+			rs = stmt.executeQuery("Select * from fine f, borrowing b where b.borid = f.borid AND b.bid = "+bid+" AND f.paidDate > sysdate" );
+			if(!rs.next()){
+				new ErrorDialog(null, "Your account is frozen because of unpaid fines. Please pay your fines before placing holds.");
+				return;
+			}
+		} catch (SQLException e) {
+		}
 		PreparedStatement ps;
 		try
 		{
@@ -280,7 +327,7 @@ public class DatabaseHandler {
 		{
 			stmt = con.con.createStatement();
 
-			rs = stmt.executeQuery("select bid from fine f,borrowing b where b.borid = f.borid AND bid="+bid);
+			rs = stmt.executeQuery("select bid from fine f,borrowing b where b.borid = f.borid AND bid="+bid+" AND f.paidDate > sysdate");
 
 
 			// get info on ResultSet
@@ -328,7 +375,7 @@ public class DatabaseHandler {
 							System.out.println("executed update");
 
 						} else {
-							ErrorDialog error = new ErrorDialog(null,"No more copies available! Unable to check out.");
+							new ErrorDialog(null,"No more copies available! Unable to check out.");
 						}
 					}
 					con.con.commit();
@@ -339,6 +386,10 @@ public class DatabaseHandler {
 					System.out.println("Borrower does not exist.");
 				}
 			}
+			else
+			{
+				new ErrorDialog (null, "This borrower has outstanding fines. Unable to process any checkouts.");
+			}
 		} catch (SQLException e) {
 			ErrorDialog error = new ErrorDialog(null, "Something went wrong somewhere in the Database Handler, method: check out. Damn.");
 			e.printStackTrace();
@@ -347,7 +398,7 @@ public class DatabaseHandler {
 	}
 	public void returnBook(int callNumber, int copyNumber) {
 		PreparedStatement ps;
-		Statement stmt = null;
+		Statement stmt;
 		ResultSet rs,rs2;
 		int holdRequests = 0, booksOnHold = 0;
 		try {
@@ -392,8 +443,11 @@ public class DatabaseHandler {
 					ps.executeUpdate();
 				}
 
+				
 				con.con.commit();
 				ps.close();
+				
+				
 
 		//	}
 		//	else System.out.println("rs/rs2 empty! \n");

@@ -5,7 +5,7 @@ create table borrower(
 	address VARCHAR2(255),
 	emailAddress VARCHAR2(25), 
 	sinOrStNo number, 
-	expiryDate timestamp, 
+	expiryDate DATE, 
 	type VARCHAR2(25));
 	
 create table borrower_type(
@@ -49,21 +49,21 @@ create table HoldRequest(
 	hid number PRIMARY KEY, 
 	bid number, 
 	callNumber number, 
-	issuedDate timestamp);
+	issuedDate DATE);
 	
 create table Borrowing(
 	borid number PRIMARY KEY, 
 	bid number, 
 	callNumber number, 
 	copyNo number, 
-	outDate timestamp, 
-	inDate timestamp);
+	outDate DATE, 
+	inDate DATE);
 	
 create table Fine (
 	fid number PRIMARY KEY, 
 	amount number, 
-	issuedDate timestamp, 
-	paidDate timestamp, 
+	issuedDate DATE, 
+	paidDate DATE, 
 	borid number);
 
 create sequence hid_sequence;

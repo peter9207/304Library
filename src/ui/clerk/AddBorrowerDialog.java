@@ -189,7 +189,7 @@ public class AddBorrowerDialog extends JDialog{
 					type = typeStrings[typeField.getSelectedIndex()];
 					password = passwordField.getText().toString();
 					expiry = expiryDateField.getText().toString();
-					SimpleDateFormat fm = new SimpleDateFormat("dd/MM/yy");
+					SimpleDateFormat fm = new SimpleDateFormat("YYYY/MM/yy");
 					java.util.Date utilDate = null;
 					try {
 						utilDate = fm.parse(expiry);
