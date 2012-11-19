@@ -15,6 +15,10 @@ import ui.NotificationDialog;
 
 public class DatabaseHandler {
 	private static OracleConnection con;
+	private static int BORROWER_SEARCH = 0;
+	private static int OVERDUE_SEARCH = 1;
+	private static int CHECKED_OUT_REPORT = 2;
+	private static int MOST_POPULAR_REPORT = 3;
 	public DatabaseHandler(){
 
 		con = new OracleConnection();
@@ -93,12 +97,14 @@ public class DatabaseHandler {
 			}
 		}
 	}
-	public Vector<Object[]> showBooks(String searchTerms, String searchParameters){
+	public Vector<Object[]> getBooks(String searchTerms, String searchParameters){
 		int callNumber, isbn, year, in, out;
 		String title, mainAuthor, publisher;
 		Statement  stmt;
 		ResultSet  rs;
 		Vector<Object[]> books = new Vector<Object[]>();
+		ArrayList<String> colNames = new ArrayList();
+		String colName;
 		int counter = 0;
 		String defaultQuery =
 				"SELECT callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
@@ -138,66 +144,21 @@ public class DatabaseHandler {
 			//display column names;
 			for (int i = 0; i < numCols; i++)
 			{
-				// get column name and print it
-
-				System.out.printf("%-15.15s", rsmd.getColumnName(i+1));
+				colName = rsmd.getColumnName(i+1);
+				colNames.add(colName);
 			}
 			System.out.println(" ");
 
 			while(rs.next())
 			{
-				// for display purposes get everything from Oracle 
-				// as a string
+				books.add(counter, new Object[numCols]);
+				for (int i = 0; i < numCols; i++) {
+					books.get(counter)[i]=rs.getObject(i+1);
 
-				// simplified output formatting; truncation may occur
-
-				callNumber = rs.getInt("CALLNUMBER");
-				isbn = rs.getInt("ISBN");
-				title = rs.getString("title");
-				mainAuthor = rs.getString("mainAuthor");
-				publisher = rs.getString("publisher");		   
-				year = rs.getInt("year");
-				in = rs.getInt("innum");
-				out = rs.getInt("outnum");
-
-				System.out.printf("%-15.15s", callNumber);
-				System.out.printf("%-15.15s", isbn);
-				System.out.printf("%-15.15s", title);
-				System.out.printf("%-15.15s", mainAuthor);
-				System.out.printf("%-15.15s", publisher);
-				System.out.printf("%-15.15s\n", year);
-				System.out.printf("%-15.15s", in);
-				System.out.printf("%-15.15s\n", out);
-
-				books.add(counter, new Object[8]);
-
-				books.get(counter)[0]=callNumber;
-				books.get(counter)[1]=isbn;
-				books.get(counter)[2]=title;
-				books.get(counter)[3]=mainAuthor;
-				books.get(counter)[4]=publisher;
-				books.get(counter)[5]=year;
-				books.get(counter)[6]=in;
-				books.get(counter)[7]=out;
-
+				}
 				counter++;
-
-
-
-
-				//		      bphone = rs.getString("branch_phone");
-				//		      if (rs.wasNull())
-				//		      {
-				//		    	  System.out.printf("%-15.15s\n", " ");
-				//	              }
-				//		      else
-				//		      {
-				//		    	  System.out.printf("%-15.15s\n", bphone);
-				//		      }      
 			}
 
-			// close the statement; 
-			// the ResultSet will also be closed
 			stmt.close();
 		}
 		catch (SQLException ex)

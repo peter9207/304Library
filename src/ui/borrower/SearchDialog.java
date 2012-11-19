@@ -93,7 +93,7 @@ public class SearchDialog extends JDialog{
 				books.setRowCount(0);
 				String searchTerms = textField.getText().toString();
 				String searchParameters = searchStrings[picker.getSelectedIndex()];
-				Vector<Object[]> books2 = MainLibrary.databaseHandler.showBooks(searchTerms, searchParameters);
+				Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, searchParameters);
 				for(int j=0; j<books2.size(); j++){
 					books.addRow(books2.get(j));
 				}
