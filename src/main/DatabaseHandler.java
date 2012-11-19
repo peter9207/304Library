@@ -91,7 +91,7 @@ public class DatabaseHandler {
 				"(select callNumber outCall, count(copyNo) outnum FROM bookcopy WHERE status LIKE 'out' GROUP BY callNumber)d " +
 				"ON c.inCall = d.outCall)cd " +
 				"WHERE (b.callNumber = cd.inCall OR b.callNumber = cd.outCall) " +
-				"AND b.UPPER("+searchParameters.toUpperCase()+") LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%'";
+				"AND UPPER(b."+searchParameters+") LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%'";
 		try
 		{
 			stmt = con.con.createStatement();
@@ -99,7 +99,7 @@ public class DatabaseHandler {
 			if (searchTerms.isEmpty()){
 				rs = stmt.executeQuery(defaultQuery);
 			}
-			else rs = stmt.executeQuery("SELECT * FROM book b,bookcopy bc WHERE b.UPPER("+searchParameters.toUpperCase()+") LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%' AND b.callNumber = bc.callNumber");
+			else rs = stmt.executeQuery(searchableQuery);
 
 			// get info on ResultSet
 			ResultSetMetaData rsmd = rs.getMetaData();
