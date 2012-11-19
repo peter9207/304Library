@@ -65,19 +65,28 @@ public class DatabaseHandler {
 		}
 	}
 	public Vector<Object[]> showBooks(String searchTerms, String searchParameters){
-		int callNumber, isbn, year;
+		int callNumber, isbn, year, in, out;
 		String title, mainAuthor, publisher;
 		Statement  stmt;
 		ResultSet  rs;
 		Vector<Object[]> books = new Vector<Object[]>();
 		int counter = 0;
-
+		String defaultQuery =
+				"SELECT callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
+				"FROM " +
+				"book b, " +
+				"(SELECT * from" +
+				"(SELECT callNumber inCall, count(copyNo) innum FROM bookcopy WHERE status LIKE 'in' GROUP BY callNumber)c " +
+				"FULL JOIN	" +
+				"(select callNumber outCall, count(copyNo) outnum FROM bookcopy WHERE status LIKE 'out' GROUP BY callNumber)d " +
+				"ON c.inCall = d.outCall)cd " +
+				"WHERE b.callNumber = cd.inCall OR b.callNumber = cd.outCall";
 		try
 		{
 			stmt = con.con.createStatement();
 
 			if (searchTerms.isEmpty()){
-				rs = stmt.executeQuery("select * from book b, (select callNumber, count(copyNo) as \"IN\" FROM bookcopy GROUP BY callNumber) c where b.callNumber=c.callNumber");
+				rs = stmt.executeQuery(defaultQuery);
 			}
 			else rs = stmt.executeQuery("SELECT * FROM book b,bookcopy bc WHERE b.UPPER("+searchParameters.toUpperCase()+") LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%' AND b.callNumber = bc.callNumber");
 
@@ -108,6 +117,8 @@ public class DatabaseHandler {
 				mainAuthor = rs.getString("mainAuthor");
 				publisher = rs.getString("publisher");		   
 				year = rs.getInt("year");
+				in = rs.getInt("innum");
+				out = rs.getInt("outnum");
 
 				System.out.printf("%-15.15s", callNumber);
 				System.out.printf("%-15.15s", isbn);
@@ -115,8 +126,10 @@ public class DatabaseHandler {
 				System.out.printf("%-15.15s", mainAuthor);
 				System.out.printf("%-15.15s", publisher);
 				System.out.printf("%-15.15s\n", year);
-
-				books.add(counter, new Object[6]);
+				System.out.printf("%-15.15s", in);
+				System.out.printf("%-15.15s\n", out);
+				
+				books.add(counter, new Object[8]);
 
 				books.get(counter)[0]=callNumber;
 				books.get(counter)[1]=isbn;
@@ -124,6 +137,8 @@ public class DatabaseHandler {
 				books.get(counter)[3]=mainAuthor;
 				books.get(counter)[4]=publisher;
 				books.get(counter)[5]=year;
+				books.get(counter)[6]=in;
+				books.get(counter)[7]=out;
 
 				counter++;
 
@@ -322,7 +337,7 @@ public class DatabaseHandler {
 	public void returnBook(int callNumber, int copyNumber) {
 		PreparedStatement ps;
 		Statement stmt = null;
-		ResultSet rs;
+		ResultSet rs,rs2;
 		
 		try {
 			ps = con.con.prepareStatement("DELETE FROM borrowing WHERE callNumber = ? AND copyNo = ?");
@@ -331,8 +346,11 @@ public class DatabaseHandler {
 			ps.executeUpdate();
 			ps.close();
 			stmt = con.con.createStatement();
-			rs = stmt.executeQuery("SELECT * FROM holdrequest WHERE callNumber = "+callNumber);
-			if(rs.next()){
+			rs = stmt.executeQuery("SELECT COUNT(*) FROM holdRequest WHERE CALLNUMBER = "+callNumber);
+			rs2 = stmt.executeQuery("SELECT COUNT(*) FROM bookCopy WHERE CALLNUMBER = "+callNumber);
+			rs.first();
+			rs2.first();
+			if(rs.getInt("count(*)")>rs2.getInt("count(*)")){
 				
 				ps = con.con.prepareStatement("UPDATE bookcopy SET status = 'on-hold' where callNumber = ? AND copyNo = ?");
 				ps.setInt(1, callNumber);
@@ -340,10 +358,10 @@ public class DatabaseHandler {
 				ps.executeUpdate();
 				ps.close();
 System.out.println("asd");
-				ps = con.con.prepareStatement("DELETE FROM holdrequest WHERE hid = 2");
-				System.out.println(rs.getInt("hid"));
-				ps.executeUpdate();
-				ps.close();
+//				ps = con.con.prepareStatement("DELETE FROM holdrequest WHERE hid = 2");
+//				System.out.println(rs.getInt("hid"));
+//				ps.executeUpdate();
+//				ps.close();
 
 			}
 			else
