@@ -362,6 +362,9 @@ System.out.println("asd");
 		}
 		
 	}
+	public OracleConnection getConnection() {
+			return con;
+	}
 
 }
 
