@@ -65,21 +65,53 @@ public class DatabaseHandler {
 		}
 	}
 	public Vector<Object[]> showBooks(String searchTerms, String searchParameters){
-		int callNumber, isbn, year;
+		int callNumber, isbn, year, in, out;
 		String title, mainAuthor, publisher;
 		Statement  stmt;
 		ResultSet  rs;
 		Vector<Object[]> books = new Vector<Object[]>();
 		int counter = 0;
-
+		String defaultQuery = 
+				"SELECT callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
+						"FROM "+
+						"book b, " +
+						"(SELECT * " +
+						"FROM " +
+						"(SELECT callNumber inCall, count(copyNo) innum FROM bookcopy WHERE status LIKE 'in' GROUP BY callNumber)c " +
+						"FULL JOIN " +
+						"(SELECT callNumber outCall, count(copyNo) outnum FROM bookcopy WHERE status LIKE 'out' GROUP BY callNumber)d " +
+						"ON " +
+						"c.inCall = d.outCall)cd " +
+						"WHERE " +
+						"b.callNumber = cd.inCall " +
+						"OR " +
+						"b.callNumber = cd.outCall";
+		String searchableQuery =
+				"SELECT callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
+						"FROM "+
+						"book b, " +
+						"(SELECT * " +
+						"FROM " +
+						"(SELECT callNumber inCall, count(copyNo) innum FROM bookcopy WHERE status LIKE 'in' GROUP BY callNumber)c " +
+						"FULL JOIN " +
+						"(SELECT callNumber outCall, count(copyNo) outnum FROM bookcopy WHERE status LIKE 'out' GROUP BY callNumber)d " +
+						"ON " +
+						"c.inCall = d.outCall)cd " +
+						"WHERE " +
+						"(b.callNumber = cd.inCall " +
+						"OR " +
+						"b.callNumber = cd.outCall) " +
+						"AND " +
+						"UPPER("+searchParameters+") LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%'";
 		try
 		{
 			stmt = con.con.createStatement();
 
 			if (searchTerms.isEmpty()){
-				rs = stmt.executeQuery("select * from book b, (select callNumber, count(copyNo) as \"IN\" FROM bookcopy GROUP BY callNumber) c where b.callNumber=c.callNumber");
+				
+				rs = stmt.executeQuery(defaultQuery );
 			}
-			else rs = stmt.executeQuery("SELECT * FROM book b,bookcopy bc WHERE b.UPPER("+searchParameters.toUpperCase()+") LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%' AND b.callNumber = bc.callNumber");
+			else rs = stmt.executeQuery(searchableQuery);
 
 			// get info on ResultSet
 			ResultSetMetaData rsmd = rs.getMetaData();
@@ -108,15 +140,19 @@ public class DatabaseHandler {
 				mainAuthor = rs.getString("mainAuthor");
 				publisher = rs.getString("publisher");		   
 				year = rs.getInt("year");
+				in = rs.getInt("innum");
+				out = rs.getInt("outnum");
 
 				System.out.printf("%-15.15s", callNumber);
 				System.out.printf("%-15.15s", isbn);
 				System.out.printf("%-15.15s", title);
 				System.out.printf("%-15.15s", mainAuthor);
 				System.out.printf("%-15.15s", publisher);
-				System.out.printf("%-15.15s\n", year);
+				System.out.printf("%-15.15s", year);
+				System.out.printf("%-15.15s", in);
+				System.out.printf("%-15.15s\n", out);
 
-				books.add(counter, new Object[6]);
+				books.add(counter, new Object[8]);
 
 				books.get(counter)[0]=callNumber;
 				books.get(counter)[1]=isbn;
@@ -124,6 +160,8 @@ public class DatabaseHandler {
 				books.get(counter)[3]=mainAuthor;
 				books.get(counter)[4]=publisher;
 				books.get(counter)[5]=year;
+				books.get(counter)[6]=in;
+				books.get(counter)[7]=out;
 
 				counter++;
 
@@ -218,8 +256,8 @@ public class DatabaseHandler {
 			ps.setInt(1, bid);
 			ps.setInt(2, callNumber);
 			ps.setDate(3, todaysql);
-			
-			
+
+
 
 			ps.executeUpdate();
 
@@ -306,7 +344,7 @@ public class DatabaseHandler {
 						}
 					}
 					con.con.commit();
-					
+
 					ps.close();
 				}
 				else{
@@ -323,7 +361,7 @@ public class DatabaseHandler {
 		PreparedStatement ps;
 		Statement stmt = null;
 		ResultSet rs;
-		
+
 		try {
 			ps = con.con.prepareStatement("DELETE FROM borrowing WHERE callNumber = ? AND copyNo = ?");
 			ps.setInt(1, callNumber);
@@ -333,13 +371,13 @@ public class DatabaseHandler {
 			stmt = con.con.createStatement();
 			rs = stmt.executeQuery("SELECT * FROM holdrequest WHERE callNumber = "+callNumber);
 			if(rs.next()){
-				
+
 				ps = con.con.prepareStatement("UPDATE bookcopy SET status = 'on-hold' where callNumber = ? AND copyNo = ?");
 				ps.setInt(1, callNumber);
 				ps.setInt(2, copyNumber);
 				ps.executeUpdate();
 				ps.close();
-System.out.println("asd");
+				System.out.println("asd");
 				ps = con.con.prepareStatement("DELETE FROM holdrequest WHERE hid = 2");
 				System.out.println(rs.getInt("hid"));
 				ps.executeUpdate();
@@ -348,19 +386,19 @@ System.out.println("asd");
 			}
 			else
 			{
-			ps = con.con.prepareStatement("UPDATE bookcopy SET status = 'in' where callNumber = ? AND copyNo = ?");
-			ps.setInt(1, callNumber);
-			ps.setInt(2, copyNumber);
-			ps.executeUpdate();
+				ps = con.con.prepareStatement("UPDATE bookcopy SET status = 'in' where callNumber = ? AND copyNo = ?");
+				ps.setInt(1, callNumber);
+				ps.setInt(2, copyNumber);
+				ps.executeUpdate();
 			}
-			
+
 			con.con.commit();
 			ps.close();
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		
+
 	}
 
 }
