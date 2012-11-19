@@ -27,7 +27,7 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 
-import ui.ErrorDialog;
+import ui.NotificationDialog;
 
 import main.MainLibrary;
 
@@ -296,12 +296,12 @@ public class AddBookDialog extends JDialog{
 								title, mainAuthor, publisher, year, copy, subVector, authorVector);
 					} catch (NumberFormatException e1) {
 						// TODO Auto-generated catch block
-						new ErrorDialog(owner,"Call Number, ISBN, and year must be in a number format.");
+						new NotificationDialog(owner, "ERROR!","Call Number, ISBN, and year must be in a number format.");
 					}
 				}
 				else
 				{
-					new ErrorDialog(owner,"Some fields are empty. Please check your inputs again.");
+					new NotificationDialog(owner, "ERROR!","Some fields are empty. Please check your inputs again.");
 				}
 			}
 		});

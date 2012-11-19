@@ -19,11 +19,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
-public class ErrorDialog extends JDialog{
-	public ErrorDialog(Frame f,String msg){
+public class NotificationDialog extends JDialog{
+	public NotificationDialog(Frame f,String title, String msg){
 		super(f, true);
 		//final JFrame mainFrame = new JFrame("Error!");
-		this.setTitle("ERROR!");
+		this.setTitle(title);
 		
 		JLabel errorLabel = new JLabel(msg);
 		JButton okButton = new JButton("OK");

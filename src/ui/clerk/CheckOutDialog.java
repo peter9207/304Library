@@ -25,7 +25,7 @@ import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
 import javax.swing.text.JTextComponent;
 
-import ui.ErrorDialog;
+import ui.NotificationDialog;
 
 import main.MainLibrary;
 
@@ -130,7 +130,7 @@ public class CheckOutDialog extends JDialog{
 					MainLibrary.databaseHandler.checkOut(callNumbers, Integer.parseInt(bidField.getText().toString()));
 					books.clear();
 				} catch (NumberFormatException e) {
-					new ErrorDialog(owner,"Please use only numbers for the Call Number field.");
+					new NotificationDialog(owner, "ERROR!","Please use only numbers for the Call Number field.");
 					
 				}
 			}

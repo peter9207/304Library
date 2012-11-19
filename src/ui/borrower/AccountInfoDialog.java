@@ -20,7 +20,7 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
-import ui.ErrorDialog;
+import ui.NotificationDialog;
 
 import main.MainLibrary;
 import main.OracleConnection;
@@ -116,9 +116,9 @@ public class AccountInfoDialog extends JDialog{
 			
 		} catch (SQLException e) {
 			e.printStackTrace();
-			new ErrorDialog(owner, "Please enter a valid borrower ID");
+			new NotificationDialog(owner, "ERROR!", "Please enter a valid borrower ID");
 		} catch (NumberFormatException e){
-			new ErrorDialog(owner, "Please enter a correct number");
+			new NotificationDialog(owner, "ERROR!", "Please enter a correct number");
 		}
 		
 		System.out.println(borrid);

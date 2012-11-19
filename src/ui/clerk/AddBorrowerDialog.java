@@ -25,7 +25,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextField;
 
-import ui.ErrorDialog;
+import ui.NotificationDialog;
 
 import main.MainLibrary;
 
@@ -194,7 +194,7 @@ public class AddBorrowerDialog extends JDialog{
 					try {
 						utilDate = fm.parse(expiry);
 					} catch (ParseException e1) {
-						new ErrorDialog(owner,"Please input the date in the following format: dd/MM/yy, e.g. 31/01/12");
+						new NotificationDialog(owner, "ERROR!","Please input the date in the following format: dd/MM/yy, e.g. 31/01/12");
 					}
 					java.sql.Date sqlDate = new java.sql.Date(
 							utilDate.getTime());
@@ -203,7 +203,7 @@ public class AddBorrowerDialog extends JDialog{
 				}
 				else
 				{
-					new ErrorDialog(owner,"Please fill in all the required fields marked with (*)");
+					new NotificationDialog(owner, "ERROR!","Please fill in all the required fields marked with (*)");
 				}
 			}
 		});

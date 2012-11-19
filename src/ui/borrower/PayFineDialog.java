@@ -14,7 +14,7 @@ import javax.swing.JTextField;
 
 import main.MainLibrary;
 
-import ui.ErrorDialog;
+import ui.NotificationDialog;
 
 public class PayFineDialog extends JDialog{
 
@@ -65,18 +65,18 @@ public class PayFineDialog extends JDialog{
 				try {
 					bidInt = Integer.parseInt(bid.getText());
 				} catch (NumberFormatException e1) {
-					new ErrorDialog(owner, "BID is not entered correctly. It should be a number.");
+					new NotificationDialog(owner, "ERROR!" , "BID is not entered correctly. It should be a number.");
 				}
 				
 				try {
 					fine = Integer.parseInt(s);
 					if(fine%5!=0){
-						new ErrorDialog(owner,"Please enter an amount in multiples of 5. We do not allow for payments less than one fine amount.");
+						new NotificationDialog(owner,"ERROR!","Please enter an amount in multiples of 5. We do not allow for payments less than one fine amount.");
 						return;
 					}
 					MainLibrary.databaseHandler.payFine(bidInt,fine);
 				} catch (NumberFormatException e) {
-					new ErrorDialog(owner,"The amount to pay should be in numerals.");
+					new NotificationDialog(owner,"ERROR!","The amount to pay should be in numerals.");
 				}
 				
 				

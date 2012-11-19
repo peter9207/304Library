@@ -11,7 +11,7 @@ import javax.swing.DefaultListModel;
 import javax.swing.JList;
 import javax.swing.table.DefaultTableModel;
 
-import ui.ErrorDialog;
+import ui.NotificationDialog;
 
 public class DatabaseHandler {
 	private static OracleConnection con;
@@ -34,7 +34,7 @@ public class DatabaseHandler {
 				try {
 					ps.executeUpdate();
 				} catch (Exception e1) {
-					new ErrorDialog(null, "Original already exists. 1 or more copies will be created.");
+					new NotificationDialog(null, "ERROR!", "Original already exists. 1 or more copies will be created.");
 				}
 				
 				ps = con.con.prepareStatement("INSERT INTO HASSUBJECT VALUES (?,?) ");
@@ -263,22 +263,27 @@ public class DatabaseHandler {
 	}
 	public void placeHold(int bid, int callNumber) {
 
+		int c = 0;
 		try {
-			ResultSet rs;
+			ResultSet rs,rs1,rs2;
 			Statement stmt = con.con.createStatement();
 			rs = stmt.executeQuery("Select * from book where callNumber = "+callNumber);
 			if(!rs.next()){
-				new ErrorDialog(null, "This book does not exist. Unable to place hold.");
+				new NotificationDialog(null, "ERROR!", "This book does not exist. Unable to place hold.");
 				return;
 			}
-			rs = stmt.executeQuery("Select * from borrower where bid = "+bid);
-			if(!rs.next()){
-				new ErrorDialog(null, "This account does not exist. Check your BID again.");
+			rs1 = stmt.executeQuery("Select * from borrower where bid = "+bid);
+			if(!rs1.next()){
+				new NotificationDialog(null, "ERROR!", "This account does not exist. Check your BID again.");
 				return;
 			}
-			rs = stmt.executeQuery("Select * from fine f, borrowing b where b.borid = f.borid AND b.bid = "+bid+" AND f.paidDate > sysdate" );
-			if(!rs.next()){
-				new ErrorDialog(null, "Your account is frozen because of unpaid fines. Please pay your fines before placing holds.");
+			rs2 = stmt.executeQuery("Select f.paidDate from fine f, borrowing b where b.borid = f.borid AND b.bid = "+bid+" AND f.paidDate IS NULL" );
+			while(rs2.next()){
+				c++;
+			}
+			System.out.println(c);
+			if(c>0){
+				new NotificationDialog(null, "ERROR!", "Your account is frozen because of unpaid fines. Please pay your fines before placing holds.");
 				return;
 			}
 		} catch (SQLException e) {
@@ -325,15 +330,19 @@ public class DatabaseHandler {
 		Statement stmt;
 		ResultSet rs,rs2,rs3;
 		int copyNumber;
+		
 		try
 		{
 			stmt = con.con.createStatement();
 
-			rs = stmt.executeQuery("select bid from fine f,borrowing b where b.borid = f.borid AND bid="+bid+" AND f.paidDate IS NULL");
-
-
+			rs = stmt.executeQuery("select bid from fine f,borrowing b where b.borid = f.borid AND b.bid="+bid+" AND f.paidDate IS NULL");
+			int c=0;
+			while(rs.next()){
+				c++;
+			}
+			System.out.println(c);
 			// get info on ResultSet
-			if (!rs.next()){
+			if (c==0){
 				rs2 = stmt.executeQuery("select bookTimeLimit from borrower b, borrower_type bt where bt.type LIKE b.type AND b.bid = "+bid);
 				if (rs2.next()) {
 					long limit = rs2.getLong("bookTimeLimit");
@@ -376,7 +385,7 @@ public class DatabaseHandler {
 							System.out.println("executed update");
 
 						} else {
-							new ErrorDialog(null,"No more copies available! Unable to check out.");
+							new NotificationDialog(null, "ERROR!","No more copies available! Unable to check out.");
 						}
 					}
 					con.con.commit();
@@ -389,10 +398,10 @@ public class DatabaseHandler {
 			}
 			else
 			{
-				new ErrorDialog (null, "This borrower has outstanding fines. Unable to process any checkouts.");
+				new NotificationDialog (null, "ERROR!", "This borrower has outstanding fines. Unable to process any checkouts.");
 			}
 		} catch (SQLException e) {
-			ErrorDialog error = new ErrorDialog(null, "Something went wrong somewhere in the Database Handler, method: check out. Damn.");
+			NotificationDialog error = new NotificationDialog(null, "ERROR!", "Something went wrong somewhere in the Database Handler, method: check out. Damn.");
 			e.printStackTrace();
 
 		}
@@ -478,7 +487,8 @@ public class DatabaseHandler {
 								.prepareStatement("INSERT INTO fine VALUES (fid_sequence.nextval,'5',sysdate,null,?)");
 						ps.setInt(1, borid);
 						ps.executeUpdate();
-					}else new ErrorDialog(null, "Something went wrong. A fine was not imposed, but the book is returned. ");
+						new NotificationDialog(null, "Uhoh!", "Overdue book! Fine imposed.");
+					}else new NotificationDialog(null, "ERROR!", "Something went wrong. A fine was not imposed, but the book is returned. ");
 				}
 				
 				con.con.commit();
@@ -518,7 +528,7 @@ public class DatabaseHandler {
 				borids.add(rs.getInt("borid"));
 			}
 			if (fines==0){
-				new ErrorDialog(null, "You have no outstanding fines. Payment failed.");
+				new NotificationDialog(null, "ERROR!", "You have no outstanding fines. Payment failed.");
 			}
 			else
 			{
