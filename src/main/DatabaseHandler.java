@@ -34,7 +34,7 @@ public class DatabaseHandler {
 				try {
 					ps.executeUpdate();
 				} catch (Exception e1) {
-					new ErrorDialog(null, "This book already exists. Check the 'Copy?' box if you wish to create copies of this book.");
+					new ErrorDialog(null, "Original already exists. 1 or more copies will be created.");
 				}
 				
 				ps = con.con.prepareStatement("INSERT INTO HASSUBJECT VALUES (?,?) ");
@@ -49,6 +49,8 @@ public class DatabaseHandler {
 						}
 					}
 				}
+				ps = con.con.prepareStatement("INSERT INTO HASAUTHOR VALUES (?,?) ");
+
 				if (!authorVector.isEmpty()) {
 					for (int i = 0; i < authorVector.size(); i++) {
 						ps.setInt(1, callNumber);
@@ -264,7 +266,7 @@ public class DatabaseHandler {
 		try {
 			ResultSet rs;
 			Statement stmt = con.con.createStatement();
-			rs = stmt.executeQuery("Select * from holdrequest where callNumber = "+callNumber);
+			rs = stmt.executeQuery("Select * from book where callNumber = "+callNumber);
 			if(!rs.next()){
 				new ErrorDialog(null, "This book does not exist. Unable to place hold.");
 				return;
@@ -327,7 +329,7 @@ public class DatabaseHandler {
 		{
 			stmt = con.con.createStatement();
 
-			rs = stmt.executeQuery("select bid from fine f,borrowing b where b.borid = f.borid AND bid="+bid+" AND f.paidDate > sysdate");
+			rs = stmt.executeQuery("select bid from fine f,borrowing b where b.borid = f.borid AND bid="+bid+" AND f.paidDate IS NULL");
 
 
 			// get info on ResultSet
@@ -346,7 +348,7 @@ public class DatabaseHandler {
 							copyNumber = rs3.getInt("copyNo");
 							System.out.println(copyNumber);
 							ps = con.con
-									.prepareStatement("INSERT INTO borrowing VALUES (borid_sequence.nextval,?,?,?,?,?)");
+									.prepareStatement("INSERT INTO borrowing VALUES (borid_sequence.nextval,?,?,?,?,null)");
 							java.util.Date today = new java.util.Date();
 							java.sql.Date todaysql2 = new java.sql.Date(
 									today.getTime());
@@ -359,7 +361,6 @@ public class DatabaseHandler {
 							System.out.println(copyNumber);
 							ps.setInt(3, copyNumber);
 							ps.setDate(4, todaysql2);
-							ps.setDate(5, inDate2);
 							System.out.println(inDate2.toString());
 							ps.executeUpdate();
 							ps.close();
@@ -402,7 +403,7 @@ public class DatabaseHandler {
 		ResultSet rs,rs2;
 		int holdRequests = 0, booksOnHold = 0;
 		try {
-			ps = con.con.prepareStatement("DELETE FROM borrowing WHERE callNumber = ? AND copyNo = ?");
+			ps = con.con.prepareStatement("UPDATE borrowing SET indate = sysdate WHERE callNumber = ? AND copyNo = ?");
 			ps.setInt(1, callNumber);
 			ps.setInt(2, copyNumber);
 			ps.executeUpdate();
@@ -444,33 +445,40 @@ public class DatabaseHandler {
 				}
 				ResultSet fineCheckSet;
 				Statement statement = con.con.createStatement();
-				String query = 
+				
+				String sql =
+						"SELECT bc.borid, bc.outDate, t.bookTimeLimit " +
+						"FROM borrower_type t, " +
+						"(SELECT * " +
+						"FROM borrower b, (" +
 						"SELECT * " +
 						"FROM borrowing " +
-						"WHERE inDate < sysdate";
-				fineCheckSet = statement.executeQuery(query);
+						"WHERE callNumber = "+ callNumber +
+						"AND copyNo = " + copyNumber +")c " +
+						"WHERE " +
+						"b.bid = c.bid)bc " +
+						"WHERE bc.type like t.type";
 				
-				int borid; 
-				
-				if(fineCheckSet.next()){
-					ResultSet borrowingID;
-					Statement st = con.con.createStatement();
-					String query2 = 
-							"SELECT * " +
-							"FROM borrowing " +
-							"WHERE callNumber = "+ callNumber +
-							"AND copyNo = " + copyNumber;
+				fineCheckSet = statement.executeQuery(sql);
+				if (fineCheckSet.next()) {
+					long limit = fineCheckSet.getLong("bookTimeLimit");
+					java.sql.Date outDate1 = fineCheckSet.getDate("outDate");
+					java.util.Date date = new java.util.Date(outDate1.getTime() + limit);
+					java.util.Date today = new java.util.Date();
+					System.out.println(outDate1);
+					System.out.println(date);
+					System.out.println(today);
+					System.out.print(date.before(today));
 					
-					borrowingID = st.executeQuery(query2);
-					
-					if(borrowingID.next()){
-						borid = borrowingID.getInt("borid");
-						ps = con.con.prepareStatement("INSERT INTO fine VALUES (fid_sequence.nextval,'5',sysdate,null,?");
+					if (date.before(today)) {
+
+						int borid = fineCheckSet.getInt("borid");
+						System.out.println(borid);
+						ps = con.con
+								.prepareStatement("INSERT INTO fine VALUES (fid_sequence.nextval,'5',sysdate,null,?)");
 						ps.setInt(1, borid);
-					}
-					
-					
-					
+						ps.executeUpdate();
+					}else new ErrorDialog(null, "Something went wrong. A fine was not imposed, but the book is returned. ");
 				}
 				
 				con.con.commit();
@@ -491,8 +499,64 @@ public class DatabaseHandler {
 	public OracleConnection getConnection() {
 		return con;
 	}
+	public void payFine(int bid, int fine) {
+		try {
+			ResultSet rs;
+			Statement st = con.con.createStatement();
+			int fines = 0;
+			ArrayList<Integer> borids = new ArrayList();
+			String sql =
+					"SELECT b.borid " +
+					"FROM fine f, borrowing b " +
+					"WHERE b.borid = f.borid " +
+					"AND bid = " + bid + " " +
+					"AND f.paidDate IS NULL";
+			
+			rs = st.executeQuery(sql);
+			while(rs.next()){
+				fines++;
+				borids.add(rs.getInt("borid"));
+			}
+			if (fines==0){
+				new ErrorDialog(null, "You have no outstanding fines. Payment failed.");
+			}
+			else
+			{
+				int i=0;
+				String update = 
+						"UPDATE fine " +
+						"SET paidDate = sysdate " +
+						"WHERE " +
+						"paidDate IS NULL " +
+						"AND borid = ?";
 
+					try {
+						PreparedStatement ps = con.con.prepareStatement("UPDATE fine SET paidDate = sysdate WHERE paidDate IS NULL AND borid = ?");
+						while (fine!=0)
+						{
+							if(borids.size()<=i){
+								con.con.commit();
+								return;
+							}
+						ps.setInt(1, borids.get(i++));
+						fine = fine-5;
+						ps.executeUpdate();
+						}
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block
+						e.printStackTrace();
+					}
+				}
+				con.con.commit();
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
 }
+
+
 
 
 

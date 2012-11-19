@@ -12,6 +12,8 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
 
+import main.MainLibrary;
+
 import ui.ErrorDialog;
 
 public class PayFineDialog extends JDialog{
@@ -37,6 +39,13 @@ public class PayFineDialog extends JDialog{
 	
 	private void initComponents(){
 		
+		JLabel bidLabel= new JLabel("BID: ");
+		this.add(bidLabel);
+		
+		final JTextField bid = new JTextField();
+		this.add(bid);
+		bid.setPreferredSize(new Dimension(80, 30));
+		
 		JLabel amtLabel= new JLabel("Amount: ");
 		this.add(amtLabel);
 		
@@ -44,18 +53,30 @@ public class PayFineDialog extends JDialog{
 		this.add(text);
 		text.setPreferredSize(new Dimension(80, 30));
 		
-		JButton payButton = new JButton("pay");
+		JButton payButton = new JButton("Pay");
 		payButton.addActionListener(new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				String s = text.getText();
-				double fine;
+				int fine;
+				int bidInt = 0;
 				
 				try {
-					fine = Double.parseDouble(s);
+					bidInt = Integer.parseInt(bid.getText());
+				} catch (NumberFormatException e1) {
+					new ErrorDialog(owner, "BID is not entered correctly. It should be a number.");
+				}
+				
+				try {
+					fine = Integer.parseInt(s);
+					if(fine%5!=0){
+						new ErrorDialog(owner,"Please enter an amount in multiples of 5. We do not allow for payments less than one fine amount.");
+						return;
+					}
+					MainLibrary.databaseHandler.payFine(bidInt,fine);
 				} catch (NumberFormatException e) {
-					new ErrorDialog(owner,"Please insert a number");
+					new ErrorDialog(owner,"The amount to pay should be in numerals.");
 				}
 				
 				

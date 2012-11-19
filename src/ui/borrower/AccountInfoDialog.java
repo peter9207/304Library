@@ -91,9 +91,15 @@ public class AccountInfoDialog extends JDialog{
 		String type = "";
 		
 		try {
-			ps = conn.con.prepareStatement("Select * from borrower where bid=?");
+			
+			String query = 
+					"SELECT * " +
+					"FROM borrowing " +
+					"WHERE bid =?";
+			ps = conn.con.prepareStatement("Select * from borrowing where bid=?");
 			ps.setInt(1, Integer.parseInt(bid));
 			ps.execute();
+			
 			System.out.println("QUERY FINISHED");
 			rs = ps.getResultSet();
 			

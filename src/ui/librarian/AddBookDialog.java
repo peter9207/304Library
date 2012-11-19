@@ -38,7 +38,7 @@ public class AddBookDialog extends JDialog{
 	 */
 	private static final long serialVersionUID = 739901659522673107L;
 
-	private static final int TEXT_BOX_HEIGHT = 30;
+	private static final int TEXT_BOX_HEIGHT = 25;
 	private static final int TEXT_BOX_WIDTH = 80;
 	private Frame owner;
 
@@ -49,7 +49,7 @@ public class AddBookDialog extends JDialog{
 		this.setTitle("Add new book");
 		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 
-		this.setSize(new Dimension(400, 350));
+		this.setSize(new Dimension(500, 350));
 		Dimension d = this.getToolkit().getScreenSize();
 		Rectangle r = this.getBounds();
 		this.setLocation( (d.width - r.width)/4, (d.height - r.height)/4 );
@@ -164,6 +164,7 @@ public class AddBookDialog extends JDialog{
 		copyPanel.add(copyLabel);
 
 		final JTextField copyBox = new JTextField();
+		copyBox.setPreferredSize(new Dimension(50, TEXT_BOX_HEIGHT));
 		copyPanel.add(copyBox);
 
 		column0.add(copyPanel);
