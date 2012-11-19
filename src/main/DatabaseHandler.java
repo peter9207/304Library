@@ -81,6 +81,17 @@ public class DatabaseHandler {
 				"(select callNumber outCall, count(copyNo) outnum FROM bookcopy WHERE status LIKE 'out' GROUP BY callNumber)d " +
 				"ON c.inCall = d.outCall)cd " +
 				"WHERE b.callNumber = cd.inCall OR b.callNumber = cd.outCall";
+		String searchableQuery =
+				"SELECT callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
+				"FROM " +
+				"book b, " +
+				"(SELECT * from" +
+				"(SELECT callNumber inCall, count(copyNo) innum FROM bookcopy WHERE status LIKE 'in' GROUP BY callNumber)c " +
+				"FULL JOIN	" +
+				"(select callNumber outCall, count(copyNo) outnum FROM bookcopy WHERE status LIKE 'out' GROUP BY callNumber)d " +
+				"ON c.inCall = d.outCall)cd " +
+				"WHERE (b.callNumber = cd.inCall OR b.callNumber = cd.outCall) " +
+				"AND b.UPPER("+searchParameters.toUpperCase()+") LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%'";
 		try
 		{
 			stmt = con.con.createStatement();
