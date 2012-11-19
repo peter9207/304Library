@@ -71,8 +71,6 @@ public class SearchDialog extends JDialog{
 		books.addColumn("Main Author");
 		books.addColumn("Publisher");
 		books.addColumn("Year");
-		books.addColumn("Copies in");
-		books.addColumn("Copies out");
 		JTable items = new JTable(books);
 
 
