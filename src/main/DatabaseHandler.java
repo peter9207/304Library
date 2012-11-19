@@ -442,7 +442,36 @@ public class DatabaseHandler {
 					ps.setInt(2, copyNumber);
 					ps.executeUpdate();
 				}
-
+				ResultSet fineCheckSet;
+				Statement statement = con.con.createStatement();
+				String query = 
+						"SELECT * " +
+						"FROM borrowing " +
+						"WHERE inDate < sysdate";
+				fineCheckSet = statement.executeQuery(query);
+				
+				int borid; 
+				
+				if(fineCheckSet.next()){
+					ResultSet borrowingID;
+					Statement st = con.con.createStatement();
+					String query2 = 
+							"SELECT * " +
+							"FROM borrowing " +
+							"WHERE callNumber = "+ callNumber +
+							"AND copyNo = " + copyNumber;
+					
+					borrowingID = st.executeQuery(query2);
+					
+					if(borrowingID.next()){
+						borid = borrowingID.getInt("borid");
+						ps = con.con.prepareStatement("INSERT INTO fine VALUES (fid_sequence.nextval,'5',sysdate,null,?");
+						ps.setInt(1, borid);
+					}
+					
+					
+					
+				}
 				
 				con.con.commit();
 				ps.close();
