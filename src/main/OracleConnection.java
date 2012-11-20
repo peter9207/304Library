@@ -33,9 +33,12 @@ public class OracleConnection implements ActionListener{
 		JLabel passwordLabel = new JLabel("Enter password: ");
 
 		usernameField = new JTextField(10);
-		usernameField.setText("ora_a9r7");
 		passwordField = new JPasswordField(10);
+		usernameField.setText("ora_a9r7");
 		passwordField.setText("a54273107");
+		usernameField.setText("ora_l0t7");
+		passwordField.setText("a30607105");
+
 		passwordField.setEchoChar('*');
 
 		JButton loginButton = new JButton("Log In");

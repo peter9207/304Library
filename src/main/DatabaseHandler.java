@@ -15,10 +15,10 @@ import ui.NotificationDialog;
 
 public class DatabaseHandler {
 	private static OracleConnection con;
-	private static int BORROWER_SEARCH = 0;
-	private static int OVERDUE_SEARCH = 1;
-	private static int CHECKED_OUT_REPORT = 2;
-	private static int MOST_POPULAR_REPORT = 3;
+	public static final int BORROWER_SEARCH = 0;
+	public static final int OVERDUE_SEARCH = 1;
+	public static final int CHECKED_OUT_REPORT = 2;
+	public static final int MOST_POPULAR_REPORT = 3;
 	public DatabaseHandler(){
 
 		con = new OracleConnection();
@@ -97,7 +97,7 @@ public class DatabaseHandler {
 			}
 		}
 	}
-	public Vector<Object[]> getBooks(String searchTerms, String searchParameters){
+	public Vector<Object[]> getBooks(String searchTerms, int searchParameters, int searchType){
 		int callNumber, isbn, year, in, out;
 		String title, mainAuthor, publisher;
 		Statement  stmt;
@@ -106,27 +106,120 @@ public class DatabaseHandler {
 		ArrayList<String> colNames = new ArrayList();
 		String colName;
 		int counter = 0;
-		String defaultQuery =
+		String defaultQuery = null;
+		String filteredQuery = null;
+		switch (searchType){
+		case BORROWER_SEARCH:
+			switch(searchParameters){
+			case 0:
+				String searchParam = "Title";
+				defaultQuery =
+						"SELECT b.callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum FROM book b, (SELECT * from (SELECT callNumber inCall, count(copyNo) innum FROM bookcopy WHERE status LIKE 'in' GROUP BY callNumber)c FULL JOIN (select callNumber outCall, count(copyNo) outnum FROM bookcopy WHERE status LIKE 'out' GROUP BY callNumber)d ON c.inCall = d.outCall)cd WHERE (b.callNumber = cd.inCall OR b.callNumber = cd.outCall)";
+				filteredQuery =
+					"SELECT callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
+							"FROM " +
+							"book b " +
+							"(SELECT * from " +
+							"(SELECT callNumber inCall, count(copyNo) innum FROM bookcopy WHERE status LIKE 'in' GROUP BY callNumber)c " +
+							"FULL JOIN " +
+							"(select callNumber outCall, count(copyNo) outnum FROM bookcopy WHERE status LIKE 'out' GROUP BY callNumber)d " +
+							"ON c.inCall = d.outCall)cd " +
+							"WHERE (b.callNumber = cd.inCall OR b.callNumber = cd.outCall) " +
+							"AND UPPER(b."+searchParam+") LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%'";
+			break;
+			case 1:
+				defaultQuery =
 				"SELECT callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
 						"FROM " +
 						"book b, " +
-						"(SELECT * from" +
+						"(SELECT * from " +
 						"(SELECT callNumber inCall, count(copyNo) innum FROM bookcopy WHERE status LIKE 'in' GROUP BY callNumber)c " +
-						"FULL JOIN	" +
+						"FULL JOIN " +
 						"(select callNumber outCall, count(copyNo) outnum FROM bookcopy WHERE status LIKE 'out' GROUP BY callNumber)d " +
 						"ON c.inCall = d.outCall)cd " +
 						"WHERE b.callNumber = cd.inCall OR b.callNumber = cd.outCall";
-		String searchableQuery =
+				filteredQuery =
+						"SELECT b.callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
+						"FROM book b, hasauthor ha, " +
+						"(SELECT * " +
+						"FROM " +
+						"(SELECT callNumber inCall, count(copyNo) innum " +
+						"FROM bookcopy " +
+						"WHERE status " +
+						"LIKE 'in' " +
+						"GROUP BY callNumber)c " +
+						"FULL JOIN " +
+						"(select callNumber outCall, count(copyNo) outnum " +
+						"FROM bookcopy " +
+						"WHERE status " +
+						"LIKE 'out' " +
+						"GROUP BY callNumber)d " +
+						"ON c.inCall = d.outCall)cd " +
+						"WHERE " +
+						"(b.callNumber = cd.inCall OR b.callNumber = cd.outCall) " +
+						"AND " +
+						"((UPPER(b.mainAuthor) LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%') " +
+						"OR " +
+						"(ha.callNumber = b.callNumber AND UPPER(ha.name) LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%'))";
+				break;
+			case 2:
+				defaultQuery =
 				"SELECT callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
 						"FROM " +
 						"book b, " +
-						"(SELECT * from" +
+						"(SELECT * from " +
 						"(SELECT callNumber inCall, count(copyNo) innum FROM bookcopy WHERE status LIKE 'in' GROUP BY callNumber)c " +
-						"FULL JOIN	" +
+						"FULL JOIN " +
 						"(select callNumber outCall, count(copyNo) outnum FROM bookcopy WHERE status LIKE 'out' GROUP BY callNumber)d " +
 						"ON c.inCall = d.outCall)cd " +
-						"WHERE (b.callNumber = cd.inCall OR b.callNumber = cd.outCall) " +
-						"AND UPPER(b."+searchParameters+") LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%'";
+						"WHERE b.callNumber = cd.inCall OR b.callNumber = cd.outCall";
+				filteredQuery =
+						"SELECT b.callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
+						"FROM book b, hassubject hs, " +
+						"(SELECT * " +
+						"FROM " +
+						"(SELECT callNumber inCall, count(copyNo) innum " +
+						"FROM bookcopy " +
+						"WHERE status " +
+						"LIKE 'in' " +
+						"GROUP BY callNumber)c " +
+						"FULL JOIN " +
+						"(select callNumber outCall, count(copyNo) outnum " +
+						"FROM bookcopy " +
+						"WHERE status " +
+						"LIKE 'out' " +
+						"GROUP BY callNumber)d " +
+						"ON c.inCall = d.outCall)cd " +
+						"WHERE " +
+						"(b.callNumber = cd.inCall OR b.callNumber = cd.outCall) " +
+						"AND " +
+						"(hs.callNumber = b.callNumber AND UPPER(hs.subject) LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%')";
+				break;
+			}
+			break;
+		case OVERDUE_SEARCH:
+			ResultSet borrowerTypes;
+			//Statement bt = con.con.createStatement();
+			String btQuery = 
+					"SELECT * " +
+					"FROM borrower_type";
+			//rs = bt.executeQuery(btQuery);
+			java.util.Date today = new java.util.Date();
+			java.sql.Date todaysql;
+			defaultQuery =
+					"SELECT book.callNumber, book.isbn, book.title, bor.copyno, btl.name, bor.outdate " +
+					"FROM BORROWING bor, book book" +
+					"(SELECT b.bid, bt.bookTimeLimit " +
+					"FROM BORROWER b, " +
+					"BORROWER_TYPE bt " +
+					"WHERE B.TYPE LIKE BT.TYPE )btl " +
+					"WHERE  bor.bid = btl.bid " +
+					"AND INDATE IS NULL " +
+					"AND OUTDATE < (SYSDATE - btl.bookTimeLimit)";
+			
+			break;
+		}
+		
 		try
 		{
 			stmt = con.con.createStatement();
@@ -134,7 +227,7 @@ public class DatabaseHandler {
 			if (searchTerms.isEmpty()){
 				rs = stmt.executeQuery(defaultQuery);
 			}
-			else rs = stmt.executeQuery(searchableQuery);
+			else rs = stmt.executeQuery(filteredQuery);
 
 			// get info on ResultSet
 			ResultSetMetaData rsmd = rs.getMetaData();
@@ -306,7 +399,7 @@ public class DatabaseHandler {
 			if (c==0){
 				rs2 = stmt.executeQuery("select bookTimeLimit from borrower b, borrower_type bt where bt.type LIKE b.type AND b.bid = "+bid);
 				if (rs2.next()) {
-					long limit = rs2.getLong("bookTimeLimit");
+					int limit = rs2.getInt("bookTimeLimit");
 					for (int i = 0; i < callNumbers.size(); i++) {
 						System.out.println(i);
 						rs3 = stmt
@@ -322,8 +415,6 @@ public class DatabaseHandler {
 							java.util.Date today = new java.util.Date();
 							java.sql.Date todaysql2 = new java.sql.Date(
 									today.getTime());
-							java.sql.Date inDate2 = new java.sql.Date(
-									today.getTime() + limit);
 							ps.setInt(1, bid);
 							ps.setInt(2, callNumbers.get(i));
 							System.out.println(callNumbers.get(i));
@@ -331,7 +422,6 @@ public class DatabaseHandler {
 							System.out.println(copyNumber);
 							ps.setInt(3, copyNumber);
 							ps.setDate(4, todaysql2);
-							System.out.println(inDate2.toString());
 							ps.executeUpdate();
 							ps.close();
 
@@ -376,7 +466,13 @@ public class DatabaseHandler {
 			ps = con.con.prepareStatement("UPDATE borrowing SET indate = sysdate WHERE callNumber = ? AND copyNo = ?");
 			ps.setInt(1, callNumber);
 			ps.setInt(2, copyNumber);
-			ps.executeUpdate();
+			int returned = ps.executeUpdate();
+			if (returned==0){
+				new NotificationDialog(null, "ERROR!", "No books identified by the inputs are checked out. Unable to process return.");
+				ps.close();
+				con.con.commit();
+				return;
+			}
 			ps.close();
 			stmt = con.con.createStatement();
 			rs = stmt.executeQuery("SELECT * FROM holdRequest WHERE CALLNUMBER = "+callNumber);
@@ -417,7 +513,7 @@ public class DatabaseHandler {
 				Statement statement = con.con.createStatement();
 				
 				String sql =
-						"SELECT bc.borid, bc.outDate, t.bookTimeLimit " +
+						"SELECT bc.borid, bc.outDate, (bc.outDate + t.bookTimeLimit)duedate " +
 						"FROM borrower_type t, " +
 						"(SELECT * " +
 						"FROM borrower b, (" +
@@ -431,16 +527,17 @@ public class DatabaseHandler {
 				
 				fineCheckSet = statement.executeQuery(sql);
 				if (fineCheckSet.next()) {
-					long limit = fineCheckSet.getLong("bookTimeLimit");
+//					long limit = fineCheckSet.getLong("bookTimeLimit");
 					java.sql.Date outDate1 = fineCheckSet.getDate("outDate");
-					java.util.Date date = new java.util.Date(outDate1.getTime() + limit);
+					java.util.Date duedate = new java.util.Date(fineCheckSet.getDate("duedate").getTime());
+//					java.util.Date date = new java.util.Date(outDate1.getTime() + limit);
 					java.util.Date today = new java.util.Date();
 					System.out.println(outDate1);
-					System.out.println(date);
+					System.out.println(duedate);
 					System.out.println(today);
-					System.out.print(date.before(today));
+					System.out.print(duedate.before(today));
 					
-					if (date.before(today)) {
+					if (duedate.before(today)) {
 
 						int borid = fineCheckSet.getInt("borid");
 						System.out.println(borid);

@@ -10,12 +10,12 @@ create table borrower(
 	
 create table borrower_type(
 	type VARCHAR2(25) primary key ,
-	bookTimeLimit long);
+	bookTimeLimit number);
 	
 
-insert into borrower_type VALUES('Student', 1209600000);
-insert into borrower_type VALUES('Faculty', 7257600000);
-insert into borrower_type VALUES('Staff', 3628800000);
+insert into borrower_type VALUES('Student', 14);
+insert into borrower_type VALUES('Faculty', 84);
+insert into borrower_type VALUES('Staff', 42);
 insert into borrower_type VALUES('General Public', 0);
 
 
