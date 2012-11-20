@@ -5,6 +5,8 @@ import java.awt.FlowLayout;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.util.Vector;
 
 import javax.swing.DefaultListModel;
@@ -57,11 +59,12 @@ public class SearchDialog extends JDialog{
 		final String[] searchStrings = {"Title", "Author", "Subject"};
 		final JComboBox picker = new JComboBox(searchStrings);
 		picker.setSelectedIndex(0);
+
 		this.add(picker);
 
 
-		JButton searchButton = new JButton();
-		this.add(searchButton);
+//		JButton searchButton = new JButton();
+//		this.add(searchButton);
 		final JPanel listViewer = new JPanel();
 
 		final DefaultTableModel books = new DefaultTableModel();
@@ -74,7 +77,7 @@ public class SearchDialog extends JDialog{
 		books.addColumn("Copies In");
 		books.addColumn("Copies Out");
 		JTable items = new JTable(books);
-
+		items.setEnabled(false);
 
 		items.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 		items.setSize(new Dimension(200,200));
@@ -84,12 +87,10 @@ public class SearchDialog extends JDialog{
 		listScroller.setPreferredSize(new Dimension(565, 200));
 		listViewer.add(listScroller);
 		this.add(listViewer);
-		searchButton.setText("Search");
-		searchButton.addActionListener(new ActionListener(){
-
+		picker.addActionListener(new ActionListener(){
 
 			@Override
-			public void actionPerformed(ActionEvent e){
+			public void actionPerformed(ActionEvent e) {
 				books.setRowCount(0);
 				String searchTerms = textField.getText().toString();
 				int searchParameters = picker.getSelectedIndex();
@@ -97,10 +98,58 @@ public class SearchDialog extends JDialog{
 				for(int j=0; j<books2.size(); j++){
 					books.addRow(books2.get(j));
 				}
-				return;
 
+				return;
+				
 			}
 		});
+//		searchButton.setText("Search");
+		textField.addKeyListener(new KeyListener(){
+			@Override
+			public void keyTyped(KeyEvent e){
+
+			}
+
+			@Override
+			public void keyPressed(KeyEvent e) {
+			}
+
+			@Override
+			public void keyReleased(KeyEvent e) {
+				books.setRowCount(0);
+				String searchTerms = textField.getText().toString();
+				int searchParameters = picker.getSelectedIndex();
+				Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, searchParameters, MainLibrary.databaseHandler.BORROWER_SEARCH);
+				for(int j=0; j<books2.size(); j++){
+					books.addRow(books2.get(j));
+				}
+
+				return;
+			}
+		});
+		books.setRowCount(0);
+		String searchTerms = textField.getText().toString();
+		int searchParameters = picker.getSelectedIndex();
+		Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, searchParameters, MainLibrary.databaseHandler.BORROWER_SEARCH);
+		for(int j=0; j<books2.size(); j++){
+			books.addRow(books2.get(j));
+		}
+//		searchButton.addActionListener(new ActionListener(){
+//			
+//
+//			@Override
+//			public void actionPerformed(ActionEvent e){
+//				books.setRowCount(0);
+//				String searchTerms = textField.getText().toString();
+//				int searchParameters = picker.getSelectedIndex();
+//				Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, searchParameters, MainLibrary.databaseHandler.BORROWER_SEARCH);
+//				for(int j=0; j<books2.size(); j++){
+//					books.addRow(books2.get(j));
+//				}
+//				return;
+//
+//			}
+//		});
 
 
 

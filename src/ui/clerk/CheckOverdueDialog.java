@@ -40,7 +40,7 @@ public class CheckOverdueDialog extends JDialog{
 		books.addColumn("Title");
 		books.addColumn("#");
 		books.addColumn("Checked out by");
-		books.addColumn("Checked out since");
+		books.addColumn("Since");
 		JTable items = new JTable(books);
 		items.getColumn("Title").setPreferredWidth(100);
 		items.getColumn("#").setPreferredWidth(20);

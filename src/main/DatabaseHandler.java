@@ -27,60 +27,60 @@ public class DatabaseHandler {
 		PreparedStatement ps;
 		try
 		{
+			ps = con.con
+					.prepareStatement("INSERT INTO book VALUES (?,?,?,?,?,?)");
+			ps.setInt(1, callNumber);
+			ps.setInt(2, isbn);
+			ps.setString(3, title);
+			ps.setString(4, mainAuthor);
+			ps.setString(5, publisher);
+			ps.setInt(6, year);
+			try {
+				ps.executeUpdate();
+			} catch (Exception e1) {
+				new NotificationDialog(null, "ERROR!", "Original already exists. 1 or more copies will be created.");
+			}
+
+			ps = con.con.prepareStatement("INSERT INTO HASSUBJECT VALUES (?,?) ");
+
+			if (!subVector.isEmpty()) {
+				for (int i = 0; i < subVector.size(); i++) {
+					ps.setInt(1, callNumber);
+					ps.setString(2, subVector.get(i));
+					try {
+						ps.executeUpdate();
+					} catch (Exception e) {
+					}
+				}
+			}
+			ps = con.con.prepareStatement("INSERT INTO HASAUTHOR VALUES (?,?) ");
+
+			if (!authorVector.isEmpty()) {
+				for (int i = 0; i < authorVector.size(); i++) {
+					ps.setInt(1, callNumber);
+					ps.setString(2, authorVector.get(i));
+					try {
+						ps.executeUpdate();
+					} catch (Exception e) {
+
+					}
+				}
+			}
+			// commit work 
+			con.con.commit();
+			ps.close();
+
+			for (int i = 0; i < copy; i++) {
 				ps = con.con
-						.prepareStatement("INSERT INTO book VALUES (?,?,?,?,?,?)");
+						.prepareStatement("INSERT INTO BookCopy VALUES (?,copyNo_sequence.nextval,?)");
 				ps.setInt(1, callNumber);
-				ps.setInt(2, isbn);
-				ps.setString(3, title);
-				ps.setString(4, mainAuthor);
-				ps.setString(5, publisher);
-				ps.setInt(6, year);
-				try {
-					ps.executeUpdate();
-				} catch (Exception e1) {
-					new NotificationDialog(null, "ERROR!", "Original already exists. 1 or more copies will be created.");
-				}
-				
-				ps = con.con.prepareStatement("INSERT INTO HASSUBJECT VALUES (?,?) ");
-				
-				if (!subVector.isEmpty()) {
-					for (int i = 0; i < subVector.size(); i++) {
-						ps.setInt(1, callNumber);
-						ps.setString(2, subVector.get(i));
-						try {
-							ps.executeUpdate();
-						} catch (Exception e) {
-						}
-					}
-				}
-				ps = con.con.prepareStatement("INSERT INTO HASAUTHOR VALUES (?,?) ");
-
-				if (!authorVector.isEmpty()) {
-					for (int i = 0; i < authorVector.size(); i++) {
-						ps.setInt(1, callNumber);
-						ps.setString(2, authorVector.get(i));
-						try {
-							ps.executeUpdate();
-						} catch (Exception e) {
-
-						}
-					}
-				}
+				ps.setString(2, "in");
+				ps.executeUpdate();
 				// commit work 
 				con.con.commit();
 				ps.close();
-				
-					for (int i = 0; i < copy; i++) {
-						ps = con.con
-								.prepareStatement("INSERT INTO BookCopy VALUES (?,copyNo_sequence.nextval,?)");
-						ps.setInt(1, callNumber);
-						ps.setString(2, "in");
-						ps.executeUpdate();
-						// commit work 
-						con.con.commit();
-						ps.close();
-					}
-			
+			}
+
 		}
 		catch (SQLException ex)
 		{
@@ -116,17 +116,17 @@ public class DatabaseHandler {
 				defaultQuery =
 						"SELECT b.callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum FROM book b, (SELECT * from (SELECT callNumber inCall, count(copyNo) innum FROM bookcopy WHERE status LIKE 'in' GROUP BY callNumber)c FULL JOIN (select callNumber outCall, count(copyNo) outnum FROM bookcopy WHERE status LIKE 'out' GROUP BY callNumber)d ON c.inCall = d.outCall)cd WHERE (b.callNumber = cd.inCall OR b.callNumber = cd.outCall)";
 				filteredQuery =
-					"SELECT callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
-							"FROM " +
-							"book b " +
-							"(SELECT * from " +
-							"(SELECT callNumber inCall, count(copyNo) innum FROM bookcopy WHERE status LIKE 'in' GROUP BY callNumber)c " +
-							"FULL JOIN " +
-							"(select callNumber outCall, count(copyNo) outnum FROM bookcopy WHERE status LIKE 'out' GROUP BY callNumber)d " +
-							"ON c.inCall = d.outCall)cd " +
-							"WHERE (b.callNumber = cd.inCall OR b.callNumber = cd.outCall) " +
-							"AND UPPER(b."+searchParam+") LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%'";
-			break;
+						"SELECT callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
+								"FROM " +
+								"book b, " +
+								"(SELECT * from " +
+								"(SELECT callNumber inCall, count(copyNo) innum FROM bookcopy WHERE status LIKE 'in' GROUP BY callNumber)c " +
+								"FULL JOIN " +
+								"(select callNumber outCall, count(copyNo) outnum FROM bookcopy WHERE status LIKE 'out' GROUP BY callNumber)d " +
+								"ON c.inCall = d.outCall)cd " +
+								"WHERE (b.callNumber = cd.inCall OR b.callNumber = cd.outCall) " +
+								"AND UPPER(b."+searchParam+") LIKE " + "'%"+searchTerms.toUpperCase().trim()+"%'";
+				break;
 			case 1:
 				defaultQuery =
 				"SELECT callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
@@ -139,28 +139,28 @@ public class DatabaseHandler {
 						"ON c.inCall = d.outCall)cd " +
 						"WHERE b.callNumber = cd.inCall OR b.callNumber = cd.outCall";
 				filteredQuery =
-						"SELECT b.callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
-						"FROM book b, hasauthor ha, " +
-						"(SELECT * " +
-						"FROM " +
-						"(SELECT callNumber inCall, count(copyNo) innum " +
-						"FROM bookcopy " +
-						"WHERE status " +
-						"LIKE 'in' " +
-						"GROUP BY callNumber)c " +
-						"FULL JOIN " +
-						"(select callNumber outCall, count(copyNo) outnum " +
-						"FROM bookcopy " +
-						"WHERE status " +
-						"LIKE 'out' " +
-						"GROUP BY callNumber)d " +
-						"ON c.inCall = d.outCall)cd " +
-						"WHERE " +
-						"(b.callNumber = cd.inCall OR b.callNumber = cd.outCall) " +
-						"AND " +
-						"((UPPER(b.mainAuthor) LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%') " +
-						"OR " +
-						"(ha.callNumber = b.callNumber AND UPPER(ha.name) LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%'))";
+						"SELECT DISTINCT b.callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
+								"FROM book b, hasauthor ha, " +
+								"(SELECT * " +
+								"FROM " +
+								"(SELECT callNumber inCall, count(copyNo) innum " +
+								"FROM bookcopy " +
+								"WHERE status " +
+								"LIKE 'in' " +
+								"GROUP BY callNumber)c " +
+								"FULL JOIN " +
+								"(select callNumber outCall, count(copyNo) outnum " +
+								"FROM bookcopy " +
+								"WHERE status " +
+								"LIKE 'out' " +
+								"GROUP BY callNumber)d " +
+								"ON c.inCall = d.outCall)cd " +
+								"WHERE " +
+								"(b.callNumber = cd.inCall OR b.callNumber = cd.outCall) " +
+								"AND " +
+								"((UPPER(b.mainAuthor) LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%') " +
+								"OR " +
+								"(ha.callNumber = b.callNumber AND UPPER(ha.name) LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%'))";
 				break;
 			case 2:
 				defaultQuery =
@@ -174,40 +174,32 @@ public class DatabaseHandler {
 						"ON c.inCall = d.outCall)cd " +
 						"WHERE b.callNumber = cd.inCall OR b.callNumber = cd.outCall";
 				filteredQuery =
-						"SELECT b.callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
-						"FROM book b, hassubject hs, " +
-						"(SELECT * " +
-						"FROM " +
-						"(SELECT callNumber inCall, count(copyNo) innum " +
-						"FROM bookcopy " +
-						"WHERE status " +
-						"LIKE 'in' " +
-						"GROUP BY callNumber)c " +
-						"FULL JOIN " +
-						"(select callNumber outCall, count(copyNo) outnum " +
-						"FROM bookcopy " +
-						"WHERE status " +
-						"LIKE 'out' " +
-						"GROUP BY callNumber)d " +
-						"ON c.inCall = d.outCall)cd " +
-						"WHERE " +
-						"(b.callNumber = cd.inCall OR b.callNumber = cd.outCall) " +
-						"AND " +
-						"(hs.callNumber = b.callNumber AND UPPER(hs.subject) LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%')";
+						"SELECT DISTINCT b.callNumber, isbn, title, mainAuthor, publisher, year, innum, outnum " +
+								"FROM book b, hassubject hs, " +
+								"(SELECT * " +
+								"FROM " +
+								"(SELECT callNumber inCall, count(copyNo) innum " +
+								"FROM bookcopy " +
+								"WHERE status " +
+								"LIKE 'in' " +
+								"GROUP BY callNumber)c " +
+								"FULL JOIN " +
+								"(select callNumber outCall, count(copyNo) outnum " +
+								"FROM bookcopy " +
+								"WHERE status " +
+								"LIKE 'out' " +
+								"GROUP BY callNumber)d " +
+								"ON c.inCall = d.outCall)cd " +
+								"WHERE " +
+								"(b.callNumber = cd.inCall OR b.callNumber = cd.outCall) " +
+								"AND " +
+								"(hs.callNumber = b.callNumber AND UPPER(hs.subject) LIKE " +"'%"+searchTerms.toUpperCase().trim()+"%')";
 				break;
 			}
 			break;
 		case OVERDUE_SEARCH:
-			ResultSet borrowerTypes;
-			//Statement bt = con.con.createStatement();
-			String btQuery = 
-					"SELECT * " +
-					"FROM borrower_type";
-			//rs = bt.executeQuery(btQuery);
-			java.util.Date today = new java.util.Date();
-			java.sql.Date todaysql;
 			defaultQuery =
-					"SELECT book.callNumber, book.isbn, book.title, bor.copyno, btl.name, bor.outdate " +
+			"SELECT book.callNumber, book.isbn, book.title, bor.copyno, btl.name, (bor.outdate + btl.bookTimeLimit) " +
 					"FROM BORROWING bor, book book, " +
 					"(SELECT b.name, b.bid, bt.bookTimeLimit " +
 					"FROM " +
@@ -222,10 +214,17 @@ public class DatabaseHandler {
 					"AND " +
 					"INDATE IS NULL " +
 					"AND OUTDATE < (SYSDATE - btl.bookTimeLimit)";
-			
+
+			break;
+		case CHECKED_OUT_REPORT:
+			defaultQuery =
+			"SELECT book.callNumber, book.isbn, book.title, bor.copyno, (bor.outdate + btl.bookTimeLimit) FROM BORROWING bor, book book, (SELECT b.name, b.bid, bt.bookTimeLimit FROM BORROWER b, BORROWER_TYPE bt WHERE B.TYPE LIKE BT.TYPE)btl WHERE bor.bid = btl.bid AND bor.callNumber = book.callNumber AND INDATE IS NULL ORDER BY book.callNumber";
+
+			filteredQuery =
+					"SELECT book.callNumber, book.isbn, book.title, bor.copyno, (bor.outdate + btl.bookTimeLimit) FROM BORROWING bor, book book, hassubject hs, (SELECT b.name, b.bid, bt.bookTimeLimit FROM BORROWER b, BORROWER_TYPE bt WHERE B.TYPE LIKE BT.TYPE)btl WHERE bor.bid = btl.bid AND bor.callNumber = book.callNumber AND INDATE IS NULL AND book.callNumber = hs.callNumber AND UPPER(hs.subject) LIKE '%"+searchTerms.toUpperCase().trim()+"%' ORDER BY book.callNumber";		
 			break;
 		}
-		
+
 		try
 		{
 			stmt = con.con.createStatement();
@@ -237,7 +236,7 @@ public class DatabaseHandler {
 
 			// get info on ResultSet
 			ResultSetMetaData rsmd = rs.getMetaData();
-			
+
 			// get number of columns
 			int numCols = rsmd.getColumnCount();
 			//display column names;
@@ -248,17 +247,40 @@ public class DatabaseHandler {
 			}
 			System.out.println(" ");
 
-			while(rs.next())
-			{
-				books.add(counter, new Object[numCols]);
-				for (int i = 0; i < numCols; i++) {
-					books.get(counter)[i]=rs.getObject(i+1);
+			if (searchType != CHECKED_OUT_REPORT) {
+				while (rs.next()) {
+					books.add(counter, new Object[numCols]);
+					for (int i = 0; i < numCols; i++) {
+						books.get(counter)[i] = rs.getObject(i + 1);
 
+					}
+					counter++;
 				}
-				counter++;
 			}
+			else
+			{
 
-			stmt.close();
+				String overdue = null;
+				while (rs.next()) {
+					books.add(counter, new Object[numCols]);
+					for (int i = 0; i < numCols; i++) {
+						if(i==numCols-1){
+							overdue = null;
+							java.util.Date today = new java.util.Date();
+							java.util.Date dueDate = new java.util.Date((rs.getDate(i+1).getTime()));
+							if(today.after(dueDate)){
+								overdue = "Overdue";
+							}
+							books.get(counter)[i] = overdue;
+						}
+						else
+							books.get(counter)[i] = rs.getObject(i + 1);
+
+					}
+					counter++;
+				}				
+				stmt.close();
+			}
 		}
 		catch (SQLException ex)
 		{
@@ -390,7 +412,7 @@ public class DatabaseHandler {
 		Statement stmt;
 		ResultSet rs,rs2,rs3;
 		int copyNumber;
-		
+
 		try
 		{
 			stmt = con.con.createStatement();
@@ -486,86 +508,86 @@ public class DatabaseHandler {
 				holdRequests++;
 			}
 			rs2 = stmt.executeQuery("SELECT * FROM bookCopy WHERE CALLNUMBER = "+callNumber+" AND status LIKE 'on-hold'");
-			
+
 			while (rs2.next()){
 				booksOnHold++;
 			}
-			
+
 			System.out.println(holdRequests);
 			System.out.println(booksOnHold);
 			//if (rs.next() && rs2.next()){
-				if(holdRequests>booksOnHold){
+			if(holdRequests>booksOnHold){
 
-					ps = con.con.prepareStatement("UPDATE bookcopy SET status = 'on-hold' where callNumber = ? AND copyNo = ?");
-					ps.setInt(1, callNumber);
-					ps.setInt(2, copyNumber);
-					ps.executeUpdate();
-					ps.close();
-					System.out.println("asd");
-					//				ps = con.con.prepareStatement("DELETE FROM holdrequest WHERE hid = 2");
-					//				System.out.println(rs.getInt("hid"));
-					//				ps.executeUpdate();
-					//				ps.close();
-
-				}
-				else
-				{
-					ps = con.con.prepareStatement("UPDATE bookcopy SET status = 'in' where callNumber = ? AND copyNo = ?");
-					ps.setInt(1, callNumber);
-					ps.setInt(2, copyNumber);
-					ps.executeUpdate();
-				}
-				ResultSet fineCheckSet;
-				Statement statement = con.con.createStatement();
-				
-				String sql =
-						"SELECT bc.borid, bc.outDate, (bc.outDate + t.bookTimeLimit)duedate " +
-						"FROM borrower_type t, " +
-						"(SELECT * " +
-						"FROM borrower b, (" +
-						"SELECT * " +
-						"FROM borrowing " +
-						"WHERE callNumber = "+ callNumber +
-						"AND copyNo = " + copyNumber +")c " +
-						"WHERE " +
-						"b.bid = c.bid)bc " +
-						"WHERE bc.type like t.type";
-				
-				fineCheckSet = statement.executeQuery(sql);
-				if (fineCheckSet.next()) {
-//					long limit = fineCheckSet.getLong("bookTimeLimit");
-					java.sql.Date outDate1 = fineCheckSet.getDate("outDate");
-					java.util.Date duedate = new java.util.Date(fineCheckSet.getDate("duedate").getTime());
-//					java.util.Date date = new java.util.Date(outDate1.getTime() + limit);
-					java.util.Date today = new java.util.Date();
-					System.out.println(outDate1);
-					System.out.println(duedate);
-					System.out.println(today);
-					System.out.print(duedate.before(today));
-					
-					if (duedate.before(today)) {
-
-						int borid = fineCheckSet.getInt("borid");
-						System.out.println(borid);
-						ps = con.con
-								.prepareStatement("INSERT INTO fine VALUES (fid_sequence.nextval,'5',sysdate,null,?)");
-						ps.setInt(1, borid);
-						ps.executeUpdate();
-						new NotificationDialog(null, "Uhoh!", "Overdue book! Fine imposed.");
-					}else new NotificationDialog(null, "ERROR!", "Something went wrong. A fine was not imposed, but the book is returned. ");
-				}
-				
-				con.con.commit();
+				ps = con.con.prepareStatement("UPDATE bookcopy SET status = 'on-hold' where callNumber = ? AND copyNo = ?");
+				ps.setInt(1, callNumber);
+				ps.setInt(2, copyNumber);
+				ps.executeUpdate();
 				ps.close();
-				
-				
+				System.out.println("asd");
+				//				ps = con.con.prepareStatement("DELETE FROM holdrequest WHERE hid = 2");
+				//				System.out.println(rs.getInt("hid"));
+				//				ps.executeUpdate();
+				//				ps.close();
 
-		//	}
-		//	else System.out.println("rs/rs2 empty! \n");
-		} catch (SQLException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
 			}
+			else
+			{
+				ps = con.con.prepareStatement("UPDATE bookcopy SET status = 'in' where callNumber = ? AND copyNo = ?");
+				ps.setInt(1, callNumber);
+				ps.setInt(2, copyNumber);
+				ps.executeUpdate();
+			}
+			ResultSet fineCheckSet;
+			Statement statement = con.con.createStatement();
+
+			String sql =
+					"SELECT bc.borid, bc.outDate, (bc.outDate + t.bookTimeLimit)duedate " +
+							"FROM borrower_type t, " +
+							"(SELECT * " +
+							"FROM borrower b, (" +
+							"SELECT * " +
+							"FROM borrowing " +
+							"WHERE callNumber = "+ callNumber +
+							"AND copyNo = " + copyNumber +")c " +
+							"WHERE " +
+							"b.bid = c.bid)bc " +
+							"WHERE bc.type like t.type";
+
+			fineCheckSet = statement.executeQuery(sql);
+			if (fineCheckSet.next()) {
+				//					long limit = fineCheckSet.getLong("bookTimeLimit");
+				java.sql.Date outDate1 = fineCheckSet.getDate("outDate");
+				java.util.Date duedate = new java.util.Date(fineCheckSet.getDate("duedate").getTime());
+				//					java.util.Date date = new java.util.Date(outDate1.getTime() + limit);
+				java.util.Date today = new java.util.Date();
+				System.out.println(outDate1);
+				System.out.println(duedate);
+				System.out.println(today);
+				System.out.print(duedate.before(today));
+
+				if (duedate.before(today)) {
+
+					int borid = fineCheckSet.getInt("borid");
+					System.out.println(borid);
+					ps = con.con
+							.prepareStatement("INSERT INTO fine VALUES (fid_sequence.nextval,'5',sysdate,null,?)");
+					ps.setInt(1, borid);
+					ps.executeUpdate();
+					new NotificationDialog(null, "Uhoh!", "Overdue book! Fine imposed.");
+				}else new NotificationDialog(null, "ERROR!", "Something went wrong. A fine was not imposed, but the book is returned. ");
+			}
+
+			con.con.commit();
+			ps.close();
+
+
+
+			//	}
+			//	else System.out.println("rs/rs2 empty! \n");
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 	}
 
 
@@ -581,11 +603,11 @@ public class DatabaseHandler {
 			ArrayList<Integer> borids = new ArrayList();
 			String sql =
 					"SELECT b.borid " +
-					"FROM fine f, borrowing b " +
-					"WHERE b.borid = f.borid " +
-					"AND bid = " + bid + " " +
-					"AND f.paidDate IS NULL";
-			
+							"FROM fine f, borrowing b " +
+							"WHERE b.borid = f.borid " +
+							"AND bid = " + bid + " " +
+							"AND f.paidDate IS NULL";
+
 			rs = st.executeQuery(sql);
 			while(rs.next()){
 				fines++;
@@ -599,30 +621,30 @@ public class DatabaseHandler {
 				int i=0;
 				String update = 
 						"UPDATE fine " +
-						"SET paidDate = sysdate " +
-						"WHERE " +
-						"paidDate IS NULL " +
-						"AND borid = ?";
+								"SET paidDate = sysdate " +
+								"WHERE " +
+								"paidDate IS NULL " +
+								"AND borid = ?";
 
-					try {
-						PreparedStatement ps = con.con.prepareStatement("UPDATE fine SET paidDate = sysdate WHERE paidDate IS NULL AND borid = ?");
-						while (fine!=0)
-						{
-							if(borids.size()<=i){
-								con.con.commit();
-								return;
-							}
+				try {
+					PreparedStatement ps = con.con.prepareStatement("UPDATE fine SET paidDate = sysdate WHERE paidDate IS NULL AND borid = ?");
+					while (fine!=0)
+					{
+						if(borids.size()<=i){
+							con.con.commit();
+							return;
+						}
 						ps.setInt(1, borids.get(i++));
 						fine = fine-5;
 						ps.executeUpdate();
-						}
-					} catch (SQLException e) {
-						// TODO Auto-generated catch block
-						e.printStackTrace();
 					}
+				} catch (SQLException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
 				}
-				con.con.commit();
-			
+			}
+			con.con.commit();
+
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
