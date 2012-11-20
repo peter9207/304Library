@@ -208,13 +208,19 @@ public class DatabaseHandler {
 			java.sql.Date todaysql;
 			defaultQuery =
 					"SELECT book.callNumber, book.isbn, book.title, bor.copyno, btl.name, bor.outdate " +
-					"FROM BORROWING bor, book book" +
-					"(SELECT b.bid, bt.bookTimeLimit " +
-					"FROM BORROWER b, " +
-					"BORROWER_TYPE bt " +
-					"WHERE B.TYPE LIKE BT.TYPE )btl " +
-					"WHERE  bor.bid = btl.bid " +
-					"AND INDATE IS NULL " +
+					"FROM BORROWING bor, book book, " +
+					"(SELECT b.name, b.bid, bt.bookTimeLimit " +
+					"FROM " +
+					"BORROWER b, BORROWER_TYPE bt " +
+					"WHERE " +
+					"B.TYPE LIKE BT.TYPE " +
+					")btl " +
+					"WHERE " +
+					"bor.bid = btl.bid " +
+					"AND " +
+					"bor.callNumber = book.callNumber " +
+					"AND " +
+					"INDATE IS NULL " +
 					"AND OUTDATE < (SYSDATE - btl.bookTimeLimit)";
 			
 			break;
