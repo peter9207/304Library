@@ -223,8 +223,10 @@ public class DatabaseHandler {
 			filteredQuery =
 					"SELECT book.callNumber, book.isbn, book.title, bor.copyno, (bor.outdate + btl.bookTimeLimit) FROM BORROWING bor, book book, hassubject hs, (SELECT b.name, b.bid, bt.bookTimeLimit FROM BORROWER b, BORROWER_TYPE bt WHERE B.TYPE LIKE BT.TYPE)btl WHERE bor.bid = btl.bid AND bor.callNumber = book.callNumber AND INDATE IS NULL AND book.callNumber = hs.callNumber AND UPPER(hs.subject) LIKE '%"+searchTerms.toUpperCase().trim()+"%' ORDER BY book.callNumber";		
 			break;
+		
+		case MOST_POPULAR_REPORT:
+			filteredQuery = "select b.callNumber, isbn, title, mainauthor, publisher, year from (select * from (select callnumber, count(*) borrowed from borrowing where outdate >= to_date("+searchTerms+",'yyyy') AND outDate <  ADD_MONTHS(to_date("+searchTerms+",'yyyy'),12) group by callnumber order by borrowed desc) where rownum <= "+searchParameters+" order by rownum)c, book b WHERE b.callNumber = c.callNumber";
 		}
-
 		try
 		{
 			stmt = con.con.createStatement();
