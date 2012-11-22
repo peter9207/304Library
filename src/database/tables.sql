@@ -68,6 +68,5 @@ create table Fine (
 
 create sequence hid_sequence;
 create sequence borid_sequence;
-create sequence copyNo_sequence;
 create sequence bid_sequence;
 create sequence fid_sequence;

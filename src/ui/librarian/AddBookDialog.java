@@ -8,6 +8,8 @@ import java.awt.GridLayout;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.Vector;
@@ -92,10 +94,59 @@ public class AddBookDialog extends JDialog{
 
 		final JTextField subjectField = new JTextField();
 		subjectField.setSize(new Dimension(120,30));;
+		subjectField.addKeyListener(new KeyListener(){
+
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				if (arg0.getKeyCode()==KeyEvent.VK_ENTER){
+					final String sub = subjectField.getText();
+					subjects.addElement(sub);
+					subjectField.setText("");
+				}
+			}
+
+			@Override
+			public void keyTyped(KeyEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 		
 		final JTextField authorField = new JTextField();
 		authorField.setSize(new Dimension(120,30));
-		
+		authorField.addKeyListener(new KeyListener(){
+
+			@Override
+			public void keyPressed(KeyEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+
+			@Override
+			public void keyReleased(KeyEvent arg0) {
+				if (arg0.getKeyCode()==KeyEvent.VK_ENTER){
+					final String author = authorField.getText();
+					if(!author.isEmpty()){
+					authors.addElement(author);
+					authorField.setText("");
+					}
+				}
+			}
+
+			@Override
+			public void keyTyped(KeyEvent arg0) {
+				// TODO Auto-generated method stub
+				
+			}
+			
+		});
 		subjectList.addMouseListener(new MouseAdapter() {
 			public void mouseClicked(MouseEvent evt) {
 				JList list = (JList)evt.getSource();
@@ -131,9 +182,11 @@ public class AddBookDialog extends JDialog{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				System.out.println("Add book button Pressed");
-				JTextArea callNumberTextComp = new JTextArea();
 				final String sub = subjectField.getText();
-				subjects.addElement(sub);
+				if(!sub.isEmpty()){
+					subjects.addElement(sub);
+					subjectField.setText("");
+					}
 			}
 		});
 		JButton addAuthor = new JButton();
@@ -143,9 +196,11 @@ public class AddBookDialog extends JDialog{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				System.out.println("Add book button Pressed");
-				JTextArea callNumberTextComp = new JTextArea();
 				final String author = authorField.getText();
-				authors.addElement(author);
+				if(!author.isEmpty()){
+					authors.addElement(author);
+					authorField.setText("");
+					}
 			}
 		});
 		column1.add(subjectField);
@@ -291,7 +346,15 @@ public class AddBookDialog extends JDialog{
 						}	
 						authors.clear();
 						subjects.clear();
-						
+						callNumberField.setText("");
+						copyBox.setText("");
+						authorField.setText("");
+						subjectField.setText("");
+						ISBNField.setText("");
+						mainAuthorField.setText("");
+						publisherField.setText("");
+						titleField.setText("");
+						yearField.setText("");
 						MainLibrary.databaseHandler.addBook(callNumber, isbn,
 								title, mainAuthor, publisher, year, copy, subVector, authorVector);
 					} catch (NumberFormatException e1) {
