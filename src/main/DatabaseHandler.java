@@ -25,8 +25,16 @@ public class DatabaseHandler {
 	}
 	public void addBook(int callNumber, int isbn, String title, String mainAuthor, String publisher, int year, int copy, Vector<String> subVector, Vector<String> authorVector){
 		PreparedStatement ps;
+		ResultSet rs;
+		int copynumber = 0;
 		try
 		{
+
+			Statement stm = con.con.createStatement();
+			rs = stm.executeQuery("Select count(*) copynum from bookcopy where callnumber = "+callNumber);
+			if (rs.next()){
+				copynumber = rs.getInt("copynum") + 1;
+			}
 			ps = con.con
 					.prepareStatement("INSERT INTO book VALUES (?,?,?,?,?,?)");
 			ps.setInt(1, callNumber);
@@ -72,14 +80,20 @@ public class DatabaseHandler {
 
 			for (int i = 0; i < copy; i++) {
 				ps = con.con
-						.prepareStatement("INSERT INTO BookCopy VALUES (?,copyNo_sequence.nextval,?)");
+						.prepareStatement("INSERT INTO BookCopy VALUES (?,?,?)");
 				ps.setInt(1, callNumber);
-				ps.setString(2, "in");
+				ps.setInt(2, copynumber++);
+				ps.setString(3, "in");
 				ps.executeUpdate();
 				// commit work 
 				con.con.commit();
 				ps.close();
 			}
+			if (copy == 1){
+				new NotificationDialog(null, "Success", copy+" copy created.");
+			}
+			else
+				new NotificationDialog(null, "Success", copy+" copies created.");
 
 		}
 		catch (SQLException ex)
@@ -484,6 +498,17 @@ public class DatabaseHandler {
 		} catch (SQLException e) {
 			NotificationDialog error = new NotificationDialog(null, "ERROR!", "Something went wrong somewhere in the Database Handler, method: check out. Damn.");
 			e.printStackTrace();
+			System.out.println("Message: " + e.getMessage());
+			try 
+			{
+				// undo the insert
+				con.con.rollback();	
+			}
+			catch (SQLException ex2)
+			{
+				System.out.println("Message: " + ex2.getMessage());
+				System.exit(-1);
+			}
 
 		}
 	}

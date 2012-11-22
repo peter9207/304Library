@@ -18,7 +18,11 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
 import javax.swing.JTextField;
+import javax.swing.ListSelectionModel;
+import javax.swing.table.DefaultTableModel;
 
 import ui.NotificationDialog;
 
@@ -67,7 +71,27 @@ public class AccountInfoDialog extends JDialog{
 			
 		});
 		this.add(inputPanel, BorderLayout.NORTH);
-		
+		final JPanel listViewer = new JPanel();
+
+		final DefaultTableModel books = new DefaultTableModel();
+		books.addColumn("Call Number");
+		books.addColumn("ISBN");
+		books.addColumn("Title");
+		books.addColumn("Main Author");
+		books.addColumn("Publisher");
+		books.addColumn("Year");
+		JTable items = new JTable(books);
+		items.getColumn("Title").setPreferredWidth(100);
+		items.setEnabled(false);
+
+		items.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+		items.setSize(new Dimension(200,200));
+
+		JScrollPane listScroller = new JScrollPane(items);
+
+		listScroller.setPreferredSize(new Dimension(565, 300));
+		listViewer.add(listScroller);
+		this.add(listViewer);
 		information = new JPanel();
 		this.add(information, BorderLayout.CENTER);
 		information.setLayout(new GridLayout(7,2,20,20));
