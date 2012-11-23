@@ -12,6 +12,7 @@ import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.util.Vector;
 
 import javax.swing.JButton;
 import javax.swing.JDialog;
@@ -36,14 +37,13 @@ public class AccountInfoDialog extends JDialog{
 	private static final long serialVersionUID = -7718138370777865661L;
 
 	private Frame owner;
-	private JPanel information;
 	public AccountInfoDialog(Frame owner) {
 		super(owner,true);
 		this.owner = owner;
 		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
 		this.setLayout(new BorderLayout());
 		this.setTitle("Account Information");
-		this.setSize(new Dimension(600,300));
+		this.setSize(new Dimension(600,500));
 		initComponents();
 	}
 	
@@ -51,7 +51,7 @@ public class AccountInfoDialog extends JDialog{
 		JPanel inputPanel = new JPanel();
 		
 		JLabel sinOrSt = new JLabel();
-		sinOrSt.setText("BorrID: ");
+		sinOrSt.setText("BID: ");
 		inputPanel.add(sinOrSt);
 		
 		final JTextField inputField = new JTextField();
@@ -61,22 +61,17 @@ public class AccountInfoDialog extends JDialog{
 		JButton displayInfo = new JButton();
 		displayInfo.setText("Get Info");
 		inputPanel.add(displayInfo);
-		displayInfo.addActionListener(new ActionListener(){
+		
 
-			@Override
-			public void actionPerformed(ActionEvent arg0) {
-				displayInfo(inputField.getText());
-				
-			}
-			
-		});
+		final DefaultTableModel books = new DefaultTableModel();
+		
 		this.add(inputPanel, BorderLayout.NORTH);
 		final JPanel listViewer = new JPanel();
 
-		final DefaultTableModel books = new DefaultTableModel();
 		books.addColumn("Call Number");
 		books.addColumn("ISBN");
 		books.addColumn("Title");
+		books.addColumn("Copy No");
 		books.addColumn("Main Author");
 		books.addColumn("Publisher");
 		books.addColumn("Year");
@@ -88,81 +83,37 @@ public class AccountInfoDialog extends JDialog{
 		items.setSize(new Dimension(200,200));
 
 		JScrollPane listScroller = new JScrollPane(items);
-
-		listScroller.setPreferredSize(new Dimension(565, 300));
+		JLabel loans = new JLabel();
+		loans.setText("Borrowed books:");
+		listViewer.add(loans);
+		listScroller.setPreferredSize(new Dimension(565, 100));
 		listViewer.add(listScroller);
 		this.add(listViewer);
-		information = new JPanel();
-		this.add(information, BorderLayout.CENTER);
-		information.setLayout(new GridLayout(7,2,20,20));
-		
-	}
-	
-	private void displayInfo(String bid){
-		//clear all existing children
-		information.removeAll();
-		information.setSize(600, 200);
-		OracleConnection conn = MainLibrary.databaseHandler.getConnection();
-		PreparedStatement ps;
-		ResultSet rs;
-		
-		int borrid = 0 ;
-		String name = "" ;
-		String addr = "" ;
-		String email = "";
-		int sNo = 0 ;
-		Date expDate = null;
-		String type = "";
-		
-		try {
-			
-			String query = 
-					"SELECT * " +
-					"FROM borrowing " +
-					"WHERE bid =?";
-			ps = conn.con.prepareStatement("Select * from borrowing where bid=?");
-			ps.setInt(1, Integer.parseInt(bid));
-			ps.execute();
-			
-			System.out.println("QUERY FINISHED");
-			rs = ps.getResultSet();
-			
-			while (rs.next()) {
-				borrid = rs.getInt("BID");
-				name = rs.getString("NAME");
-				addr = rs.getString("ADDRESS");
-				email = rs.getString("EMAILADDRESS");
-				sNo = rs.getInt("SINORSTNO");
-				expDate = rs.getDate("EXPIRYDATE");
-				type = rs.getString("TYPE");
+		displayInfo.addActionListener(new ActionListener(){
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				try {
+					Vector<Object[]>books2 = MainLibrary.databaseHandler.getInfoBorrowedItems(Integer.parseInt(inputField.getText()));
+					if (books2 == null){
+						System.out.println("nope");
+						return;
+					}
+					for(int j=0; j<books2.size(); j++){
+						books.addRow(books2.get(j));
+					}
+					
+				} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					new NotificationDialog (owner, "ERROR!", "Your BID must be a number.");
+					e.printStackTrace();
+				}
 			}
 			
-			
-		} catch (SQLException e) {
-			e.printStackTrace();
-			new NotificationDialog(owner, "ERROR!", "Please enter a valid borrower ID");
-		} catch (NumberFormatException e){
-			new NotificationDialog(owner, "ERROR!", "Please enter a correct number");
-		}
-		
-		System.out.println(borrid);
-		
-		
-		information.add(new JLabel("BorrID: "));
-		information.add(new JLabel(borrid+""));
-		information.add(new JLabel("Name "));
-		information.add(new JLabel(name));
-		information.add(new JLabel("Address"));
-		information.add(new JLabel(addr));
-		information.add(new JLabel("Sin Or St #"));
-		information.add(new JLabel(sNo+""));
-		information.add(new JLabel("Expiration Date"));
-		information.add(new JLabel(expDate.toString()));
-		information.add(new JLabel("Type"));
-		information.add(new JLabel(type));
-		
-		information.revalidate();
-		
+		});
+
+
 	}
+	
 
 }

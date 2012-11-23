@@ -677,6 +677,39 @@ public class DatabaseHandler {
 			e.printStackTrace();
 		}
 	}
+	public Vector<Object[]> getInfoBorrowedItems(int bid) {
+		ResultSet rs,rs2;
+		Vector<Object[]> books = new Vector<Object[]>();
+		int counter = 0;
+		String sql = "SELECT book.callNumber, book.isbn, book.title, bor.copyno, book.mainAuthor, book.publisher, book.year FROM BORROWING bor, book book, (SELECT b.name, b.bid, bt.bookTimeLimit FROM BORROWER b, BORROWER_TYPE bt WHERE B.TYPE LIKE BT.TYPE)btl WHERE bor.bid = "+bid+" AND bor.bid = btl.bid AND bor.callNumber = book.callNumber AND INDATE IS NULL ORDER BY book.callNumber";
+		try {
+			Statement check = con.con.createStatement();
+			rs = check.executeQuery("Select * from borrower where bid = "+bid);
+			if(!rs.next()){
+				new NotificationDialog(null, "ERROR!", "The BID you entered does not match any borrower in our records. Please try again.");
+				return null;
+			}
+			Statement results = con.con.createStatement();
+			rs2 = results.executeQuery(sql);
+			ResultSetMetaData rsmd = rs2.getMetaData();
+			int numCols = rsmd.getColumnCount();
+			while (rs2.next()) {
+				books.add(counter, new Object[numCols]);
+				for (int i = 0; i < numCols; i++) {
+					books.get(counter)[i] = rs2.getObject(i + 1);
+					System.out.println(rs2.getObject(i+1));
+				}
+				counter++;
+			}
+			
+				
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return books;
+	}
 }
 
 
