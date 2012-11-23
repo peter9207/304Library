@@ -710,6 +710,72 @@ public class DatabaseHandler {
 		}
 		return books;
 	}
+	public Vector<Object[]> getInfoHeldItems(int bid) {
+		ResultSet rs,rs2;
+		Vector<Object[]> books = new Vector<Object[]>();
+		int counter = 0;
+		String sql = "select book.callNumber, book.isbn, book.title, book.mainAuthor, book.publisher, book.year, hr.issueddate from holdrequest hr, book book where hr.bid = "+bid+" AND hr.callNumber = book.callNumber";
+		try {
+			Statement check = con.con.createStatement();
+			rs = check.executeQuery("Select * from borrower where bid = "+bid);
+			if(!rs.next()){
+				new NotificationDialog(null, "ERROR!", "The BID you entered does not match any borrower in our records. Please try again.");
+				return null;
+			}
+			Statement results = con.con.createStatement();
+			rs2 = results.executeQuery(sql);
+			ResultSetMetaData rsmd = rs2.getMetaData();
+			int numCols = rsmd.getColumnCount();
+			while (rs2.next()) {
+				books.add(counter, new Object[numCols]);
+				for (int i = 0; i < numCols; i++) {
+					books.get(counter)[i] = rs2.getObject(i + 1);
+					System.out.println(rs2.getObject(i+1));
+				}
+				counter++;
+			}
+			
+				
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return books;
+	}
+	public Vector<Object[]> getInfoFines(int bid) {
+		ResultSet rs,rs2;
+		Vector<Object[]> books = new Vector<Object[]>();
+		int counter = 0;
+		String sql = "select book.callNumber, book.isbn, book.title, bookfined.copyno, bookfined.amount from book book, (select fi.borid, fi.amount, fi.paiddate, bc.callnumber, bc.copyno from bookcopy bc, (select b.callNumber, f.borid, f.amount, f.paiddate, b.copyno from fine f, borrowing b where f.borid = b.borid AND b.bid = "+bid+" AND f.paiddate IS NULL) fi where fi.callNumber = bc.callNumber AND fi.copyno = bc.copyno) bookfined where book.callNumber = bookfined.callNumber";
+		try {
+			Statement check = con.con.createStatement();
+			rs = check.executeQuery("Select * from borrower where bid = "+bid);
+			if(!rs.next()){
+				new NotificationDialog(null, "ERROR!", "The BID you entered does not match any borrower in our records. Please try again.");
+				return null;
+			}
+			Statement results = con.con.createStatement();
+			rs2 = results.executeQuery(sql);
+			ResultSetMetaData rsmd = rs2.getMetaData();
+			int numCols = rsmd.getColumnCount();
+			while (rs2.next()) {
+				books.add(counter, new Object[numCols]);
+				for (int i = 0; i < numCols; i++) {
+					books.get(counter)[i] = rs2.getObject(i + 1);
+					System.out.println(rs2.getObject(i+1));
+				}
+				counter++;
+			}
+			
+				
+			
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return books;
+	}
 }
 
 
