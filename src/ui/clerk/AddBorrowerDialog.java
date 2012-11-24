@@ -140,7 +140,8 @@ public class AddBorrowerDialog extends JDialog{
 		JPanel expiryDatePanel = new JPanel();
 		expiryDatePanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
-		JLabel expiryDateLabel = new JLabel("Expires on (dd/MM/yy):");
+		
+		JLabel expiryDateLabel = new JLabel("Expires on (yyyy/MM/dd):");
 		expiryDatePanel.add(expiryDateLabel);
 
 		final JTextField expiryDateField = new JTextField();
@@ -189,17 +190,23 @@ public class AddBorrowerDialog extends JDialog{
 					type = typeStrings[typeField.getSelectedIndex()];
 					password = passwordField.getText().toString();
 					expiry = expiryDateField.getText().toString();
-					SimpleDateFormat fm = new SimpleDateFormat("YYYY/MM/yy");
+					SimpleDateFormat fm = new SimpleDateFormat("yyyy/MM/dd");
 					java.util.Date utilDate = null;
 					try {
 						utilDate = fm.parse(expiry);
 					} catch (ParseException e1) {
-						new NotificationDialog(owner, "ERROR!","Please input the date in the following format: dd/MM/yy, e.g. 31/01/12");
+						new NotificationDialog(owner, "ERROR!","Please input the date in the following format: yyyy/mm/dd e.g. 13/11/31 - 2013, November, 31st.");
 					}
 					java.sql.Date sqlDate = new java.sql.Date(
 							utilDate.getTime());
 					MainLibrary.databaseHandler.addBorrower(password,
 							name, address, email, sinOrStNo, sqlDate, type);
+					nameField.setText("");
+					addressField.setText("");
+					emailAddressField.setText("");
+					passwordField.setText("");
+					expiryDateField.setText("");
+					sinOrStNoField.setText("");
 				}
 				else
 				{

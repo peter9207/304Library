@@ -371,7 +371,7 @@ public class DatabaseHandler {
 				return;
 			}
 			rs1 = stmt.executeQuery("Select * from borrower where bid = "+bid+" AND expiryDate < sysdate");
-			if(!rs1.next()){
+			if(rs1.next()){
 				new NotificationDialog(null, "ERROR!", "This account does not exist, or it is expired.");
 				return;
 			}
@@ -449,7 +449,7 @@ public class DatabaseHandler {
 						rs3 = stmt
 								.executeQuery("select * from bookcopy where callNumber = "
 										+ callNumbers.get(i).toString()
-										+ " AND status LIKE 'in'");
+										+ " AND status LIKE 'in' or status LIKE 'on-hold'");
 						System.out.println("query ran");
 						if (rs3.next()) {
 							copyNumber = rs3.getInt("copyNo");
@@ -476,7 +476,7 @@ public class DatabaseHandler {
 							ps.setInt(2, copyNumber);
 							ps.executeUpdate();
 							ps.close();
-
+							con.con.commit();
 							System.out.println("executed update");
 
 						} else {
@@ -485,7 +485,6 @@ public class DatabaseHandler {
 					}
 					con.con.commit();
 
-					ps.close();
 				}
 				else{
 					new NotificationDialog(null, "ERROR!", "The borrower does not exist, or his/her account is expired.");
@@ -496,7 +495,7 @@ public class DatabaseHandler {
 				new NotificationDialog (null, "ERROR!", "This borrower has outstanding unpaid fines or his account is expired. ");
 			}
 		} catch (SQLException e) {
-			NotificationDialog error = new NotificationDialog(null, "ERROR!", "Something went wrong somewhere in the Database Handler, method: check out. Damn.");
+			new NotificationDialog(null, "ERROR!", "Something went wrong somewhere in the Database Handler, method: check out. Damn.");
 			e.printStackTrace();
 			System.out.println("Message: " + e.getMessage());
 			try 
@@ -514,43 +513,83 @@ public class DatabaseHandler {
 	}
 	public void returnBook(int callNumber, int copyNumber) {
 		PreparedStatement ps;
-		Statement stmt;
-		ResultSet rs,rs2;
+		Statement stmt,checkstm;
+		ResultSet rs,check;
 		int holdRequests = 0, booksOnHold = 0;
 		try {
+			checkstm = con.con.createStatement();
+			check = checkstm.executeQuery("Select * from borrowing where indate IS NULL AND callNumber = "+callNumber+" AND copyno = "+copyNumber);
+			if (!check.next()){
+				new NotificationDialog(null, "ERROR", "No books identified by the inputs above are checked out. Unable to process return");
+				checkstm.close();
+				return;
+			}
 			ps = con.con.prepareStatement("UPDATE borrowing SET indate = sysdate WHERE callNumber = ? AND copyNo = ?");
 			ps.setInt(1, callNumber);
 			ps.setInt(2, copyNumber);
+			System.out.println("before executing update");
 			int returned = ps.executeUpdate();
+			System.out.println("after executing update returned = "+returned);
 			if (returned==0){
 				new NotificationDialog(null, "ERROR!", "No books identified by the inputs are checked out. Unable to process return.");
 				ps.close();
-				con.con.commit();
 				return;
 			}
+			System.out.println("before commiting returned = "+returned);
+			con.con.commit();
 			ps.close();
+			System.out.println("updated borrowing");
 			stmt = con.con.createStatement();
 			rs = stmt.executeQuery("SELECT * FROM holdRequest WHERE CALLNUMBER = "+callNumber);
 			while(rs.next()){
 				holdRequests++;
 			}
-			rs2 = stmt.executeQuery("SELECT * FROM bookCopy WHERE CALLNUMBER = "+callNumber+" AND status LIKE 'on-hold'");
+			//rs2 = stmt.executeQuery("SELECT * FROM bookCopy WHERE CALLNUMBER = "+callNumber+" AND status LIKE 'on-hold'");
 
-			while (rs2.next()){
-				booksOnHold++;
-			}
+			//while (rs2.next()){
+			//	booksOnHold++;
+			//}
 
 			System.out.println(holdRequests);
-			System.out.println(booksOnHold);
+			//System.out.println(booksOnHold);
 			//if (rs.next() && rs2.next()){
-			if(holdRequests>booksOnHold){
+			if(holdRequests>0){
 
 				ps = con.con.prepareStatement("UPDATE bookcopy SET status = 'on-hold' where callNumber = ? AND copyNo = ?");
 				ps.setInt(1, callNumber);
 				ps.setInt(2, copyNumber);
 				ps.executeUpdate();
 				ps.close();
-				System.out.println("asd");
+				rs.close();
+				//rs2.close();
+				
+				ResultSet emails;
+				Statement stm = con.con.createStatement();
+				emails = stm.executeQuery("select b.bid, b.name, b.emailaddress from holdrequest hr, borrower b where hr.callNumber = "+callNumber+" AND hr.bid = b.bid ORDER BY hr.issuedDate ASC");
+				int bidEmail = 0;
+				String email;
+				if(emails.next()){
+					email = emails.getString("emailaddress");
+					bidEmail = emails.getInt("bid");
+					String nameEmail = emails.getString("name");
+				System.out.println(email);
+				if(!email.isEmpty()){
+					new NotificationDialog (null, "Notified Holder", "An email has been sent to "+email+", the first in line to recieve a held copy.");
+				}
+				else new NotificationDialog(null, "Holder not notified", "The borrower next in line to recieve this held copy did not provide an email address. Please contact him manually. \n BID: "+bidEmail+"\n Name: "+nameEmail);	
+				}
+				else {
+					new NotificationDialog(null,"ERROR", "query returned empty set.");
+					return;
+				}
+				ps = con.con.prepareStatement("delete from holdrequest where callNumber = ? AND bid = ?");
+				ps.setInt(1, callNumber);
+				ps.setInt(2, bidEmail);
+				ps.executeUpdate();
+				con.con.commit();
+				ps.close();
+				stm.close();
+				emails.close();
 				//				ps = con.con.prepareStatement("DELETE FROM holdrequest WHERE hid = 2");
 				//				System.out.println(rs.getInt("hid"));
 				//				ps.executeUpdate();
@@ -601,19 +640,20 @@ public class DatabaseHandler {
 					ps.setInt(1, borid);
 					ps.executeUpdate();
 					new NotificationDialog(null, "Uhoh!", "Overdue book! Fine imposed.");
-				}else new NotificationDialog(null, "ERROR!", "Something went wrong. A fine was not imposed, but the book is returned. ");
+				};
 			}
 
 			con.con.commit();
 			ps.close();
+			fineCheckSet.close();
+			statement.close();
 
 
 
 			//	}
 			//	else System.out.println("rs/rs2 empty! \n");
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			new NotificationDialog(null, "Error", e.getMessage());
 		}
 	}
 
@@ -627,7 +667,7 @@ public class DatabaseHandler {
 			ResultSet rs;
 			Statement st = con.con.createStatement();
 			int fines = 0;
-			ArrayList<Integer> borids = new ArrayList();
+			ArrayList<Integer> borids = new ArrayList<Integer>();
 			String sql =
 					"SELECT b.borid " +
 							"FROM fine f, borrowing b " +
@@ -646,12 +686,7 @@ public class DatabaseHandler {
 			else
 			{
 				int i=0;
-				String update = 
-						"UPDATE fine " +
-								"SET paidDate = sysdate " +
-								"WHERE " +
-								"paidDate IS NULL " +
-								"AND borid = ?";
+
 
 				try {
 					PreparedStatement ps = con.con.prepareStatement("UPDATE fine SET paidDate = sysdate WHERE paidDate IS NULL AND borid = ?");
@@ -669,6 +704,8 @@ public class DatabaseHandler {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
+
+				new NotificationDialog(null,"Payment Completed", "Payment accepted.");
 			}
 			con.con.commit();
 

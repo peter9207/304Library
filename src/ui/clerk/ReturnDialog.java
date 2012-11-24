@@ -14,6 +14,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import ui.NotificationDialog;
+
 import main.MainLibrary;
 
 public class ReturnDialog extends JDialog{
@@ -64,7 +66,12 @@ public class ReturnDialog extends JDialog{
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				MainLibrary.databaseHandler.returnBook(Integer.parseInt(text.getText().toString()),Integer.parseInt(cpn2.getText().toString()));
+				try {
+					MainLibrary.databaseHandler.returnBook(Integer.parseInt(text.getText()),Integer.parseInt(cpn2.getText()));
+				} catch (NumberFormatException e) {
+					// TODO Auto-generated catch block
+					new NotificationDialog (null, "ERROR!", "Please ensure the call number and copy number provided is numerical and without spaces.");
+				}
 			}
 			
 		});
