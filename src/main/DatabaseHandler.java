@@ -370,9 +370,9 @@ public class DatabaseHandler {
 				new NotificationDialog(null, "ERROR!", "This book does not exist. Unable to place hold.");
 				return;
 			}
-			rs1 = stmt.executeQuery("Select * from borrower where bid = "+bid);
+			rs1 = stmt.executeQuery("Select * from borrower where bid = "+bid+" AND expiryDate < sysdate");
 			if(!rs1.next()){
-				new NotificationDialog(null, "ERROR!", "This account does not exist. Check your BID again.");
+				new NotificationDialog(null, "ERROR!", "This account does not exist, or it is expired.");
 				return;
 			}
 			rs2 = stmt.executeQuery("Select f.paidDate from fine f, borrowing b where b.borid = f.borid AND b.bid = "+bid+" AND f.paidDate IS NULL" );
@@ -433,7 +433,7 @@ public class DatabaseHandler {
 		{
 			stmt = con.con.createStatement();
 
-			rs = stmt.executeQuery("select bid from fine f,borrowing b where b.borid = f.borid AND b.bid="+bid+" AND f.paidDate IS NULL");
+			rs = stmt.executeQuery("select * from (Select * from borrower where bid = "+bid+" AND expiryDate < sysdate) b FULL JOIN (select bid from fine f,borrowing b where b.borid = f.borid AND b.bid = "+bid+" AND f.paidDate IS NULL) c on b.bid = c.bid");
 			int c=0;
 			while(rs.next()){
 				c++;
@@ -488,12 +488,12 @@ public class DatabaseHandler {
 					ps.close();
 				}
 				else{
-					System.out.println("Borrower does not exist.");
+					new NotificationDialog(null, "ERROR!", "The borrower does not exist, or his/her account is expired.");
 				}
 			}
 			else
 			{
-				new NotificationDialog (null, "ERROR!", "This borrower has outstanding fines. Unable to process any checkouts.");
+				new NotificationDialog (null, "ERROR!", "This borrower has outstanding unpaid fines or his account is expired. ");
 			}
 		} catch (SQLException e) {
 			NotificationDialog error = new NotificationDialog(null, "ERROR!", "Something went wrong somewhere in the Database Handler, method: check out. Damn.");

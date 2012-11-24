@@ -18,5 +18,5 @@ DROP table Fine PURGE;
 
 drop sequence hid_sequence;
 drop sequence borid_sequence;
-drop sequence copyNo_sequence;
 drop sequence bid_sequence;
+drop sequence fid_sequence;

@@ -3,6 +3,7 @@ package ui;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.net.URL;
 
 import javax.swing.JDialog;
 import javax.swing.JFrame;
@@ -86,50 +87,20 @@ public class TopMenuBar extends JMenuBar {
 		JMenu libMenu = new JMenu("Library");
 		libMenu.setMnemonic('L');
 		
-		JMenuItem addItem = new JMenuItem("Add...");
+		JMenuItem addItem = new JMenuItem("Reset Library");
 		addItem.setEnabled(true);
 		addItem.addActionListener(new ActionListener(){
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				System.out.println("Add Item button Pressed!");
-				
 			}
 			
 		});
 		libMenu.add(addItem);
-		
-		
-		JMenuItem removeItem = new JMenuItem("Remove...");
-		removeItem.setEnabled(true);
-		removeItem.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO Auto-generated method stub
-				System.out.println("Remove button pressed");
-				
-			}
-			
-		});
-		libMenu.add(removeItem);
-		
-		JMenuItem reportItem = new JMenuItem("Generate Report");
-		reportItem.setEnabled(true);
-		reportItem.addActionListener(new ActionListener(){
-
-			@Override
-			public void actionPerformed(ActionEvent e) {
-				// TODO generate report of all checked out items
-				
-				
-			}
-			
-		});
-		libMenu.add(reportItem);
-		this.add(libMenu);
 	}
+		
+		
 	
 	private void addBorrowerMenuItem(){
 		JMenu bMenu = new JMenu("Borrower");
