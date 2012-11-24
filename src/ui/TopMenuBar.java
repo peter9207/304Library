@@ -59,8 +59,7 @@ public class TopMenuBar extends JMenuBar {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				System.out.println("[INFO] About action Clicked");
-				// TODO Insert action for about button item here
+				new NotificationDialog(null, "304 Project Library System", "Authors: Shawn Lim, Zhang WeiZhong, Aleksander Arsovski. ");
 			}
 		});
 		fileMenu.add(aboutItem);
