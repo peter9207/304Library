@@ -524,6 +524,41 @@ public class DatabaseHandler {
 				checkstm.close();
 				return;
 			}
+			ResultSet fineCheckSet;
+			Statement statement123 = con.con.createStatement();
+
+			String sql = "SELECT bc.borid, bc.outDate, (bc.outDate + t.bookTimeLimit)duedate FROM borrower_type t, (SELECT * FROM borrower b, (SELECT * FROM borrowing WHERE callNumber = "+callNumber+" AND copyNo = "+copyNumber+" AND INDATE IS NULL) c WHERE b.bid = c.bid) bc WHERE bc.type like t.type";
+
+				fineCheckSet = statement123.executeQuery(sql);
+				System.out.println("query fine check ran");
+
+				System.out.println(callNumber);
+				System.out.println(copyNumber);
+				ResultSetMetaData rsmd = fineCheckSet.getMetaData();
+				System.out.println(rsmd.getColumnCount());
+			if (fineCheckSet.next()) {
+				System.out.println("finecheckset is not empty");
+				//					long limit = fineCheckSet.getLong("bookTimeLimit");
+				java.sql.Date outDate1 = fineCheckSet.getDate("outDate");
+				java.util.Date duedate = new java.util.Date(fineCheckSet.getDate("duedate").getTime());
+				//					java.util.Date date = new java.util.Date(outDate1.getTime() + limit);
+				java.util.Date today = new java.util.Date();
+				System.out.println(outDate1);
+				System.out.println(duedate);
+				System.out.println(today);
+				System.out.print(duedate.before(today));
+
+				if (duedate.before(today)) {
+
+					int borid = fineCheckSet.getInt("borid");
+					System.out.println(borid);
+					ps = con.con
+							.prepareStatement("INSERT INTO fine VALUES (fid_sequence.nextval,'5',sysdate,null,?)");
+					ps.setInt(1, borid);
+					ps.executeUpdate();
+					new NotificationDialog(null, "Uhoh!", "Overdue book! Fine imposed.");
+				};
+			}
 			ps = con.con.prepareStatement("UPDATE borrowing SET indate = sysdate WHERE callNumber = ? AND copyNo = ?");
 			ps.setInt(1, callNumber);
 			ps.setInt(2, copyNumber);
@@ -602,51 +637,14 @@ public class DatabaseHandler {
 				ps.setInt(1, callNumber);
 				ps.setInt(2, copyNumber);
 				ps.executeUpdate();
+				System.out.println("update bookcopy set status in");
 			}
-			ResultSet fineCheckSet;
-			Statement statement = con.con.createStatement();
-
-			String sql =
-					"SELECT bc.borid, bc.outDate, (bc.outDate + t.bookTimeLimit)duedate " +
-							"FROM borrower_type t, " +
-							"(SELECT * " +
-							"FROM borrower b, (" +
-							"SELECT * " +
-							"FROM borrowing " +
-							"WHERE callNumber = "+ callNumber +
-							"AND copyNo = " + copyNumber +")c " +
-							"WHERE " +
-							"b.bid = c.bid)bc " +
-							"WHERE bc.type like t.type";
-
-			fineCheckSet = statement.executeQuery(sql);
-			if (fineCheckSet.next()) {
-				//					long limit = fineCheckSet.getLong("bookTimeLimit");
-				java.sql.Date outDate1 = fineCheckSet.getDate("outDate");
-				java.util.Date duedate = new java.util.Date(fineCheckSet.getDate("duedate").getTime());
-				//					java.util.Date date = new java.util.Date(outDate1.getTime() + limit);
-				java.util.Date today = new java.util.Date();
-				System.out.println(outDate1);
-				System.out.println(duedate);
-				System.out.println(today);
-				System.out.print(duedate.before(today));
-
-				if (duedate.before(today)) {
-
-					int borid = fineCheckSet.getInt("borid");
-					System.out.println(borid);
-					ps = con.con
-							.prepareStatement("INSERT INTO fine VALUES (fid_sequence.nextval,'5',sysdate,null,?)");
-					ps.setInt(1, borid);
-					ps.executeUpdate();
-					new NotificationDialog(null, "Uhoh!", "Overdue book! Fine imposed.");
-				};
-			}
-
+			
+			System.out.println("after the if statemtent");
 			con.con.commit();
 			ps.close();
 			fineCheckSet.close();
-			statement.close();
+			statement123.close();
 
 
 
@@ -655,6 +653,7 @@ public class DatabaseHandler {
 		} catch (SQLException e) {
 			new NotificationDialog(null, "Error", e.getMessage());
 		}
+		
 	}
 
 
