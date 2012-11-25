@@ -141,7 +141,7 @@ public class AddBorrowerDialog extends JDialog{
 		expiryDatePanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
 		
-		JLabel expiryDateLabel = new JLabel("Expires on (yyyy/MM/dd):");
+		JLabel expiryDateLabel = new JLabel("*Expires on (yyyy/MM/dd):");
 		expiryDatePanel.add(expiryDateLabel);
 
 		final JTextField expiryDateField = new JTextField();
@@ -195,7 +195,7 @@ public class AddBorrowerDialog extends JDialog{
 					try {
 						utilDate = fm.parse(expiry);
 					} catch (ParseException e1) {
-						new NotificationDialog(owner, "ERROR!","Please input the date in the following format: yyyy/mm/dd e.g. 13/11/31 - 2013, November, 31st.");
+						new NotificationDialog(owner, "ERROR!","Please input the date in the following format: yyyy/mm/dd e.g. 2013/11/31 - 2013, November 31st.");
 					}
 					java.sql.Date sqlDate = new java.sql.Date(
 							utilDate.getTime());
