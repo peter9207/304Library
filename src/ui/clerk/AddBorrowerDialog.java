@@ -56,18 +56,6 @@ public class AddBorrowerDialog extends JDialog{
 
 	private void initComponents(){
 		//Panel - BID
-//		JPanel bidPanel = new JPanel();
-//		bidPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
-//
-//		JLabel bidLabel = new JLabel("*BID: ");
-//		bidPanel.add(bidLabel);
-//
-//		final JTextField bidField = new JTextField();
-//		bidPanel.add(bidField);
-//		bidField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
-//
-//		this.add(bidPanel);
-
 
 		//Panel - password
 		JPanel passwordPanel = new JPanel();
@@ -165,11 +153,6 @@ public class AddBorrowerDialog extends JDialog{
 
 		this.add(typePanel);
 
-		//				String[] searchStrings = {"Title", "Author", "Subject"};
-		//				JComboBox picker = new JComboBox(searchStrings);
-		//				picker.setSelectedIndex(0);
-		//				this.add(picker);
-
 		JButton addButton = new JButton();
 		this.add(addButton);
 		addButton.setText("Add");
@@ -207,6 +190,7 @@ public class AddBorrowerDialog extends JDialog{
 					passwordField.setText("");
 					expiryDateField.setText("");
 					sinOrStNoField.setText("");
+					dispose();
 				}
 				else
 				{
