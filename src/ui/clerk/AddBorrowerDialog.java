@@ -36,6 +36,7 @@ public class AddBorrowerDialog extends JDialog{
 
 	private static final int TEXT_BOX_HEIGHT = 30;
 	private static final int TEXT_BOX_WIDTH = 80;
+	private static final String DATE_REGEX="\\d{4}/[01]\\d/[0-3]\\d";
 
 	private static final long serialVersionUID = -7718138370777865661L;
 
@@ -128,7 +129,7 @@ public class AddBorrowerDialog extends JDialog{
 		JPanel expiryDatePanel = new JPanel();
 		expiryDatePanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
-		
+
 		JLabel expiryDateLabel = new JLabel("*Expires on (yyyy/MM/dd):");
 		expiryDatePanel.add(expiryDateLabel);
 
@@ -144,7 +145,7 @@ public class AddBorrowerDialog extends JDialog{
 
 		JLabel typeLabel = new JLabel("Type:");
 		typePanel.add(typeLabel);
-		
+
 		final String[] typeStrings = {"Student","Faculty","Staff","General Public"};
 		final JComboBox typeField = new JComboBox(typeStrings);
 		typeField.setSelectedIndex(0);
@@ -176,20 +177,24 @@ public class AddBorrowerDialog extends JDialog{
 					SimpleDateFormat fm = new SimpleDateFormat("yyyy/MM/dd");
 					java.util.Date utilDate = null;
 					try {
+						if(!expiry.matches(DATE_REGEX)) throw new ParseException("FALSE DATE", 0);
 						utilDate = fm.parse(expiry);
+
+						System.out.println("Still runs");
+						java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+						MainLibrary.databaseHandler.addBorrower(password,
+								name, address, email, sinOrStNo, sqlDate, type);
+						nameField.setText("");
+						addressField.setText("");
+						emailAddressField.setText("");
+						passwordField.setText("");
+						expiryDateField.setText("");
+						sinOrStNoField.setText("");
 					} catch (ParseException e1) {
+						// TODO Auto-generated catch block
+						System.out.println("Parse exception");
 						new NotificationDialog(owner, "ERROR!","Please input the date in the following format: yyyy/mm/dd e.g. 2013/11/31 - 2013, November 31st.");
 					}
-					java.sql.Date sqlDate = new java.sql.Date(
-							utilDate.getTime());
-					MainLibrary.databaseHandler.addBorrower(password,
-							name, address, email, sinOrStNo, sqlDate, type);
-					nameField.setText("");
-					addressField.setText("");
-					emailAddressField.setText("");
-					passwordField.setText("");
-					expiryDateField.setText("");
-					sinOrStNoField.setText("");
 					dispose();
 				}
 				else
@@ -201,7 +206,7 @@ public class AddBorrowerDialog extends JDialog{
 
 
 	}
-	
+
 }
 
 
