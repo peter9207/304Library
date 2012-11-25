@@ -1,16 +1,8 @@
 package main;
 
-import java.io.IOException;
-import java.io.PrintStream;
 import java.sql.*;
 import java.sql.Date;
 import java.util.*;
-import java.util.concurrent.TimeUnit;
-
-import javax.swing.DefaultListModel;
-import javax.swing.JList;
-import javax.swing.table.DefaultTableModel;
-
 import ui.NotificationDialog;
 
 public class DatabaseHandler {

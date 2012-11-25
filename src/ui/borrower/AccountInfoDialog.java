@@ -1,17 +1,10 @@
 package ui.borrower;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Dimension;
-import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Date;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.util.Vector;
 
 import javax.swing.JButton;
@@ -23,12 +16,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 
 import ui.NotificationDialog;
 
 import main.MainLibrary;
-import main.OracleConnection;
 
 public class AccountInfoDialog extends JDialog{
 	/**
@@ -40,7 +33,7 @@ public class AccountInfoDialog extends JDialog{
 	public AccountInfoDialog(Frame owner) {
 		super(owner,true);
 		this.owner = owner;
-		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		this.setLayout(new BorderLayout());
 		this.setTitle("Account Information");
 		this.setSize(new Dimension(600,500));

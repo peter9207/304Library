@@ -11,6 +11,7 @@ import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 
 import main.MainLibrary;
 
@@ -29,7 +30,7 @@ public class PayFineDialog extends JDialog{
 		owner = f;
 		this.setLayout(new FlowLayout(FlowLayout.LEFT));
 		this.setTitle("Pay Fine");
-		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		
 		initComponents();
 	

@@ -8,7 +8,6 @@ import java.awt.event.ActionListener;
 import java.util.Vector;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -17,8 +16,10 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 
+import main.DatabaseHandler;
 import main.MainLibrary;
 
 public class CheckOutReportDialog extends JDialog{
@@ -35,7 +36,7 @@ public class CheckOutReportDialog extends JDialog{
 		this.setLayout(new FlowLayout(FlowLayout.LEADING));
 		this.setSize(new Dimension(600,400));
 		this.setTitle("Report");
-		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
 		initComponents();
 	}
@@ -80,7 +81,7 @@ public class CheckOutReportDialog extends JDialog{
 			public void actionPerformed(ActionEvent e){
 				books.setRowCount(0);
 				String searchTerms = textField.getText().toString();
-				Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, 0, MainLibrary.databaseHandler.CHECKED_OUT_REPORT);
+				Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, 0, DatabaseHandler.CHECKED_OUT_REPORT);
 				for(int j=0; j<books2.size(); j++){
 					books.addRow(books2.get(j));
 				}
@@ -90,7 +91,7 @@ public class CheckOutReportDialog extends JDialog{
 		});
 		books.setRowCount(0);
 		String searchTerms = textField.getText().toString();
-		Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, 0, MainLibrary.databaseHandler.CHECKED_OUT_REPORT);
+		Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, 0, DatabaseHandler.CHECKED_OUT_REPORT);
 		for(int j=0; j<books2.size(); j++){
 			books.addRow(books2.get(j));
 		}

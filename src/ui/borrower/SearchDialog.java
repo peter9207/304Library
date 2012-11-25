@@ -9,22 +9,19 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.util.Vector;
 
-import javax.swing.DefaultListModel;
-import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
-import javax.swing.JList;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
-import javax.swing.ListModel;
 import javax.swing.ListSelectionModel;
+import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 
+import main.DatabaseHandler;
 import main.MainLibrary;
 
 public class SearchDialog extends JDialog{
@@ -42,7 +39,7 @@ public class SearchDialog extends JDialog{
 		super(owner,true);
 		this.setLayout(new FlowLayout(FlowLayout.LEADING));
 		this.setTitle("Search");
-		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
 		this.setSize(new Dimension(600, 300));
 		initComponents();
@@ -94,7 +91,7 @@ public class SearchDialog extends JDialog{
 				books.setRowCount(0);
 				String searchTerms = textField.getText().toString();
 				int searchParameters = picker.getSelectedIndex();
-				Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, searchParameters, MainLibrary.databaseHandler.BORROWER_SEARCH);
+				Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, searchParameters, DatabaseHandler.BORROWER_SEARCH);
 				for(int j=0; j<books2.size(); j++){
 					books.addRow(books2.get(j));
 				}
@@ -119,7 +116,7 @@ public class SearchDialog extends JDialog{
 				books.setRowCount(0);
 				String searchTerms = textField.getText().toString();
 				int searchParameters = picker.getSelectedIndex();
-				Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, searchParameters, MainLibrary.databaseHandler.BORROWER_SEARCH);
+				Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, searchParameters, DatabaseHandler.BORROWER_SEARCH);
 				for(int j=0; j<books2.size(); j++){
 					books.addRow(books2.get(j));
 				}
@@ -130,7 +127,7 @@ public class SearchDialog extends JDialog{
 		books.setRowCount(0);
 		String searchTerms = textField.getText().toString();
 		int searchParameters = picker.getSelectedIndex();
-		Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, searchParameters, MainLibrary.databaseHandler.BORROWER_SEARCH);
+		Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, searchParameters, DatabaseHandler.BORROWER_SEARCH);
 		for(int j=0; j<books2.size(); j++){
 			books.addRow(books2.get(j));
 		}

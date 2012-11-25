@@ -3,15 +3,10 @@ package ui;
 import java.awt.Frame;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.net.URL;
-
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-
-import main.MainLibrary;
 
 import ui.borrower.AccountInfoDialog;
 import ui.borrower.PayFineDialog;
