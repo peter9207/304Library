@@ -41,7 +41,7 @@ public class MostPopularDialog extends JDialog{
 		this.setTitle("Popularity Report");
 		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		
-		this.setSize(new Dimension(600, 400));
+		this.setSize(new Dimension(635, 400));
 		initComponents();
 	}
 	
@@ -80,16 +80,19 @@ public class MostPopularDialog extends JDialog{
 		books.addColumn("Main Author");
 		books.addColumn("Publisher");
 		books.addColumn("Year");
+		books.addColumn("Borrowed Count");
+		
 		JTable items = new JTable(books);
 		items.getColumn("Title").setPreferredWidth(100);
+		items.getColumn("Borrowed Count").setPreferredWidth(100);
 		items.setEnabled(false);
-
+		items.setAutoCreateRowSorter(false);
 		items.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-		items.setSize(new Dimension(200,200));
+		items.setSize(new Dimension(250,200));
 
 		JScrollPane listScroller = new JScrollPane(items);
 
-		listScroller.setPreferredSize(new Dimension(565, 300));
+		listScroller.setPreferredSize(new Dimension(600, 300));
 		listViewer.add(listScroller);
 		this.add(listViewer);
 		searchButton.addActionListener(new ActionListener(){

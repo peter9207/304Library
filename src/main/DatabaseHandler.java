@@ -104,8 +104,7 @@ public class DatabaseHandler {
 		}
 	}
 	public Vector<Object[]> getBooks(String searchTerms, int searchParameters, int searchType){
-		int callNumber, isbn, year, in, out;
-		String title, mainAuthor, publisher;
+		
 		Statement  stmt;
 		ResultSet  rs;
 		Vector<Object[]> books = new Vector<Object[]>();
@@ -231,7 +230,7 @@ public class DatabaseHandler {
 			break;
 		
 		case MOST_POPULAR_REPORT:
-			filteredQuery = "select b.callNumber, isbn, title, mainauthor, publisher, year from (select * from (select callnumber, count(*) borrowed from borrowing where outdate >= to_date("+searchTerms+",'yyyy') AND outDate <  ADD_MONTHS(to_date("+searchTerms+",'yyyy'),12) group by callnumber order by borrowed desc) where rownum <= "+searchParameters+" order by rownum)c, book b WHERE b.callNumber = c.callNumber";
+			filteredQuery = "select b.callNumber, isbn, title, mainauthor, publisher, year, c.borrowed from (select * from (select callnumber, count(callNumber) borrowed from borrowing where outdate >= to_date("+searchTerms+",'yyyy') AND outDate <  ADD_MONTHS(to_date("+searchTerms+",'yyyy'),12) group by callnumber ) where rownum <= "+searchParameters+" order by rownum)c, book b WHERE b.callNumber = c.callNumber order by borrowed desc";
 		}
 		try
 		{
@@ -522,7 +521,7 @@ public class DatabaseHandler {
 		PreparedStatement ps;
 		Statement stmt,checkstm;
 		ResultSet rs,check;
-		int holdRequests = 0, booksOnHold = 0;
+		int holdRequests = 0;
 		try {
 			checkstm = con.con.createStatement();
 			check = checkstm.executeQuery("Select * from borrowing where indate IS NULL AND callNumber = "+callNumber+" AND copyno = "+copyNumber);
@@ -537,14 +536,8 @@ public class DatabaseHandler {
 			String sql = "SELECT bc.borid, bc.outDate, (bc.outDate + t.bookTimeLimit)duedate FROM borrower_type t, (SELECT * FROM borrower b, (SELECT * FROM borrowing WHERE callNumber = "+callNumber+" AND copyNo = "+copyNumber+" AND INDATE IS NULL) c WHERE b.bid = c.bid) bc WHERE bc.type like t.type";
 
 				fineCheckSet = statement123.executeQuery(sql);
-
-
-				ResultSetMetaData rsmd = fineCheckSet.getMetaData();
 			if (fineCheckSet.next()) {
-				//					long limit = fineCheckSet.getLong("bookTimeLimit");
-				java.sql.Date outDate1 = fineCheckSet.getDate("outDate");
 				java.util.Date duedate = new java.util.Date(fineCheckSet.getDate("duedate").getTime());
-				//					java.util.Date date = new java.util.Date(outDate1.getTime() + limit);
 				java.util.Date today = new java.util.Date();
 				if (duedate.before(today)) {
 
