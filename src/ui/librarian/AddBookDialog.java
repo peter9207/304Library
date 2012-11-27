@@ -319,7 +319,6 @@ public class AddBookDialog extends JDialog{
 			public void actionPerformed(ActionEvent e) {
 				if (!titleField.getText().toString().isEmpty() && !mainAuthorField.getText().toString().isEmpty()&&!publisherField.getText().toString().isEmpty()) {
 					try {
-						System.out.println("Add button Clicked");
 						int callNumber, isbn, year;
 						String title, mainAuthor, publisher;
 						callNumber = Integer.parseInt(callNumberField.getText()
