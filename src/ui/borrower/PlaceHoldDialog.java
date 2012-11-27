@@ -12,6 +12,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 
 import main.MainLibrary;
 
@@ -28,7 +29,7 @@ public class PlaceHoldDialog extends JDialog{
 	public PlaceHoldDialog(Frame f){
 		super(f,true);
 		
-		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		this.setTitle("Place Hold");
 		this.setSize(300, 125);
 		initComponents();

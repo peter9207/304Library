@@ -1,29 +1,23 @@
 package ui.clerk;
 
-import java.awt.Dialog;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
 import java.awt.GridLayout;
-import java.awt.Insets;
 import java.awt.Rectangle;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.sql.Date;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 
-import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.JPasswordField;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 
 import ui.NotificationDialog;
 
@@ -36,6 +30,7 @@ public class AddBorrowerDialog extends JDialog{
 
 	private static final int TEXT_BOX_HEIGHT = 30;
 	private static final int TEXT_BOX_WIDTH = 80;
+	private static final String DATE_REGEX="\\d{4}/[01]\\d/[0-3]\\d";
 
 	private static final long serialVersionUID = -7718138370777865661L;
 
@@ -48,7 +43,7 @@ public class AddBorrowerDialog extends JDialog{
 		this.setLocation( (d.width - r.width)/4, (d.height - r.height)/4 );
 		this.setLayout(new GridLayout(0,1));
 		this.setSize(new Dimension(250,400));
-		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		this.setTitle("Add Borrower");
 		initComponents();
 
@@ -56,18 +51,6 @@ public class AddBorrowerDialog extends JDialog{
 
 	private void initComponents(){
 		//Panel - BID
-//		JPanel bidPanel = new JPanel();
-//		bidPanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
-//
-//		JLabel bidLabel = new JLabel("*BID: ");
-//		bidPanel.add(bidLabel);
-//
-//		final JTextField bidField = new JTextField();
-//		bidPanel.add(bidField);
-//		bidField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
-//
-//		this.add(bidPanel);
-
 
 		//Panel - password
 		JPanel passwordPanel = new JPanel();
@@ -140,7 +123,7 @@ public class AddBorrowerDialog extends JDialog{
 		JPanel expiryDatePanel = new JPanel();
 		expiryDatePanel.setLayout(new FlowLayout(FlowLayout.TRAILING));
 
-		
+
 		JLabel expiryDateLabel = new JLabel("*Expires on (yyyy/MM/dd):");
 		expiryDatePanel.add(expiryDateLabel);
 
@@ -156,7 +139,7 @@ public class AddBorrowerDialog extends JDialog{
 
 		JLabel typeLabel = new JLabel("Type:");
 		typePanel.add(typeLabel);
-		
+
 		final String[] typeStrings = {"Student","Faculty","Staff","General Public"};
 		final JComboBox typeField = new JComboBox(typeStrings);
 		typeField.setSelectedIndex(0);
@@ -164,11 +147,6 @@ public class AddBorrowerDialog extends JDialog{
 		typeField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
 
 		this.add(typePanel);
-
-		//				String[] searchStrings = {"Title", "Author", "Subject"};
-		//				JComboBox picker = new JComboBox(searchStrings);
-		//				picker.setSelectedIndex(0);
-		//				this.add(picker);
 
 		JButton addButton = new JButton();
 		this.add(addButton);
@@ -193,20 +171,24 @@ public class AddBorrowerDialog extends JDialog{
 					SimpleDateFormat fm = new SimpleDateFormat("yyyy/MM/dd");
 					java.util.Date utilDate = null;
 					try {
+						if(!expiry.matches(DATE_REGEX)) throw new ParseException("FALSE DATE", 0);
 						utilDate = fm.parse(expiry);
+
+						System.out.println("Still runs");
+						java.sql.Date sqlDate = new java.sql.Date(utilDate.getTime());
+						MainLibrary.databaseHandler.addBorrower(password,
+								name, address, email, sinOrStNo, sqlDate, type);
+						nameField.setText("");
+						addressField.setText("");
+						emailAddressField.setText("");
+						passwordField.setText("");
+						expiryDateField.setText("");
+						sinOrStNoField.setText("");
 					} catch (ParseException e1) {
+						System.out.println("Parse exception");
 						new NotificationDialog(owner, "ERROR!","Please input the date in the following format: yyyy/mm/dd e.g. 2013/11/31 - 2013, November 31st.");
 					}
-					java.sql.Date sqlDate = new java.sql.Date(
-							utilDate.getTime());
-					MainLibrary.databaseHandler.addBorrower(password,
-							name, address, email, sinOrStNo, sqlDate, type);
-					nameField.setText("");
-					addressField.setText("");
-					emailAddressField.setText("");
-					passwordField.setText("");
-					expiryDateField.setText("");
-					sinOrStNoField.setText("");
+					dispose();
 				}
 				else
 				{
@@ -217,7 +199,7 @@ public class AddBorrowerDialog extends JDialog{
 
 
 	}
-	
+
 }
 
 

@@ -5,8 +5,6 @@ import java.awt.Dimension;
 import java.awt.Rectangle;
 
 import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
 /**
  * 
  * @author peter9207

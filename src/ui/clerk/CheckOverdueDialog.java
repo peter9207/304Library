@@ -2,8 +2,6 @@ package ui.clerk;
 
 import java.awt.Dimension;
 import java.awt.Frame;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Vector;
 
 import javax.swing.JDialog;
@@ -12,8 +10,10 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.ListSelectionModel;
+import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 
+import main.DatabaseHandler;
 import main.MainLibrary;
 
 public class CheckOverdueDialog extends JDialog{
@@ -24,7 +24,7 @@ public class CheckOverdueDialog extends JDialog{
 
 	public CheckOverdueDialog(Frame owner){
 		super(owner,true);
-		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		this.setSize(new Dimension(565,300));
 		this.setTitle("Overdue Books");
 		initComponents();
@@ -56,7 +56,7 @@ public class CheckOverdueDialog extends JDialog{
 		this.add(listViewer);
 
 		books.setRowCount(0);
-		Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks("", 0, MainLibrary.databaseHandler.OVERDUE_SEARCH);
+		Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks("", 0, DatabaseHandler.OVERDUE_SEARCH);
 		for(int j=0; j<books2.size(); j++){
 			books.addRow(books2.get(j));
 		}

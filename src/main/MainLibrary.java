@@ -1,7 +1,5 @@
 package main;
 
-import java.util.concurrent.TimeUnit;
-
 import javax.swing.JFrame;
 
 import ui.MainFrame;

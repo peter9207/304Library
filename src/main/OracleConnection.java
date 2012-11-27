@@ -93,6 +93,7 @@ public class OracleConnection implements ActionListener{
 		// anonymous inner class for closing the window
 		mainFrame.addWindowListener(new WindowAdapter() 
 		{
+			@Override
 			public void windowClosing(WindowEvent e) 
 			{ 
 				System.exit(0); 
@@ -143,6 +144,7 @@ public class OracleConnection implements ActionListener{
 	}  
 
 
+	@Override
 	public void actionPerformed(ActionEvent e) 
 	{
 		if ( connect(usernameField.getText(), String.valueOf(passwordField.getPassword())) )

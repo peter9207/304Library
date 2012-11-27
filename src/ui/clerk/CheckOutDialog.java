@@ -3,7 +3,6 @@ package ui.clerk;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -13,9 +12,7 @@ import java.util.Vector;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JComponent;
 import javax.swing.JDialog;
-import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
@@ -23,8 +20,7 @@ import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
-import javax.swing.text.JTextComponent;
-
+import javax.swing.WindowConstants;
 import ui.NotificationDialog;
 
 import main.MainLibrary;
@@ -41,7 +37,7 @@ public class CheckOutDialog extends JDialog{
 		this.owner = owner;
 		getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.Y_AXIS));
 		this.setSize(new Dimension(400,300));
-		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		this.setTitle("Check out items");
 		initComponents();
 
@@ -79,7 +75,6 @@ public class CheckOutDialog extends JDialog{
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				System.out.println("Add book button Pressed");
 				JTextArea callNumberTextComp = new JTextArea();
 				final String callNo = callNumber.getText();
 				books.addElement(callNo);
@@ -102,7 +97,8 @@ public class CheckOutDialog extends JDialog{
 		listViewer.add(listScroller);
 		
 		items.addMouseListener(new MouseAdapter() {
-		    public void mouseClicked(MouseEvent evt) {
+		    @Override
+			public void mouseClicked(MouseEvent evt) {
 		        JList list = (JList)evt.getSource();
 		        if (evt.getClickCount() == 2) {
 		            int index = list.locationToIndex(evt.getPoint());

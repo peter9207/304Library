@@ -1,6 +1,5 @@
 package ui.librarian;
 
-import java.awt.BorderLayout;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
@@ -17,17 +16,15 @@ import java.util.Vector;
 import javax.swing.BoxLayout;
 import javax.swing.DefaultListModel;
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JList;
 import javax.swing.JPanel;
-import javax.swing.JRadioButton;
 import javax.swing.JScrollPane;
-import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.WindowConstants;
 
 import ui.NotificationDialog;
 
@@ -49,7 +46,7 @@ public class AddBookDialog extends JDialog{
 		this.owner = owner;
 		this.setLayout(new GridLayout(0,2));
 		this.setTitle("Add new book");
-		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 
 		this.setSize(new Dimension(500, 350));
 		Dimension d = this.getToolkit().getScreenSize();
@@ -154,6 +151,7 @@ public class AddBookDialog extends JDialog{
 			
 		});
 		subjectList.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent evt) {
 				JList list = (JList)evt.getSource();
 				if (evt.getClickCount() == 2) {
@@ -168,6 +166,7 @@ public class AddBookDialog extends JDialog{
 			}
 		});
 		authorList.addMouseListener(new MouseAdapter() {
+			@Override
 			public void mouseClicked(MouseEvent evt) {
 				JList list = (JList)evt.getSource();
 				if (evt.getClickCount() == 2) {
@@ -330,7 +329,6 @@ public class AddBookDialog extends JDialog{
 			public void actionPerformed(ActionEvent e) {
 				if (!titleField.getText().toString().isEmpty() && !mainAuthorField.getText().toString().isEmpty()&&!publisherField.getText().toString().isEmpty()) {
 					try {
-						System.out.println("Add button Clicked");
 						int callNumber, isbn, year;
 						String title, mainAuthor, publisher;
 						callNumber = Integer.parseInt(callNumberField.getText()

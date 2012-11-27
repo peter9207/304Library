@@ -3,13 +3,11 @@ package ui.librarian;
 import java.awt.Dimension;
 import java.awt.FlowLayout;
 import java.awt.Frame;
-import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.Vector;
 
 import javax.swing.JButton;
-import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -18,10 +16,12 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.ListSelectionModel;
+import javax.swing.WindowConstants;
 import javax.swing.table.DefaultTableModel;
 
 import ui.NotificationDialog;
 
+import main.DatabaseHandler;
 import main.MainLibrary;
 
 public class MostPopularDialog extends JDialog{
@@ -39,7 +39,7 @@ public class MostPopularDialog extends JDialog{
 		super(owner,true);
 		this.setLayout(new FlowLayout(FlowLayout.LEADING));
 		this.setTitle("Popularity Report");
-		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		
 		this.setSize(new Dimension(600, 400));
 		initComponents();
@@ -105,7 +105,7 @@ public class MostPopularDialog extends JDialog{
 					}
 					books.setRowCount(0);
 					String searchTerms = yearField.getText().toString();
-					Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, searchParameters, MainLibrary.databaseHandler.MOST_POPULAR_REPORT);
+					Vector<Object[]> books2 = MainLibrary.databaseHandler.getBooks(searchTerms, searchParameters, DatabaseHandler.MOST_POPULAR_REPORT);
 					for(int j=0; j<books2.size(); j++){
 						books.addRow(books2.get(j));
 					}

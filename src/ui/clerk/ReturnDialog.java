@@ -13,6 +13,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
+import javax.swing.WindowConstants;
 
 import ui.NotificationDialog;
 
@@ -31,7 +32,7 @@ public class ReturnDialog extends JDialog{
 	public ReturnDialog(Frame f){
 		super(f,true);
 		
-		this.setDefaultCloseOperation(JFrame.HIDE_ON_CLOSE);
+		this.setDefaultCloseOperation(WindowConstants.HIDE_ON_CLOSE);
 		this.setTitle("Returns");
 		this.setSize(300, 200);
 		initComponents();
@@ -68,6 +69,8 @@ public class ReturnDialog extends JDialog{
 			public void actionPerformed(ActionEvent arg0) {
 				try {
 					MainLibrary.databaseHandler.returnBook(Integer.parseInt(text.getText()),Integer.parseInt(cpn2.getText()));
+					text.setText("");
+					cpn2.setText("");
 				} catch (NumberFormatException e) {
 					// TODO Auto-generated catch block
 					new NotificationDialog (null, "ERROR!", "Please ensure the call number and copy number provided is numerical and without spaces.");
