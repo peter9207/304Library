@@ -204,9 +204,9 @@ public class DatabaseHandler {
 			break;
 		case OVERDUE_SEARCH:
 			defaultQuery =
-			"SELECT book.callNumber, book.isbn, book.title, bor.copyno, btl.name, (bor.outdate + btl.bookTimeLimit) " +
+			"SELECT book.callNumber, book.isbn, book.title, bor.copyno, btl.name, btl.emailaddress, (bor.outdate + btl.bookTimeLimit) " +
 					"FROM BORROWING bor, book book, " +
-					"(SELECT b.name, b.bid, bt.bookTimeLimit " +
+					"(SELECT b.name, b.bid, b.emailaddress, bt.bookTimeLimit " +
 					"FROM " +
 					"BORROWER b, BORROWER_TYPE bt " +
 					"WHERE " +
@@ -367,8 +367,8 @@ public class DatabaseHandler {
 				new NotificationDialog(null, "ERROR!", "This book does not exist. Unable to place hold.");
 				return;
 			}
-			rs1 = stmt.executeQuery("Select * from borrower where bid = "+bid+" AND expiryDate < sysdate");
-			if(rs1.next()){
+			rs1 = stmt.executeQuery("Select * from borrower where bid = "+bid+" AND expiryDate > sysdate");
+			if(!rs1.next()){
 				new NotificationDialog(null, "ERROR!", "This account does not exist, or it is expired.");
 				return;
 			}
@@ -401,7 +401,7 @@ public class DatabaseHandler {
 			// commit work 
 			con.con.commit();
 
-			System.out.println("hold request placed");
+			new NotificationDialog(null, "Success", "Hold has been successfully placed. You will be emailed according to your position in the waiting list upon availability of this book.s");
 			ps.close();
 
 		}
@@ -479,7 +479,7 @@ public class DatabaseHandler {
 							Statement stm = con.con.createStatement();
 							returnTime = stm.executeQuery("SELECT bc.callNumber, (bc.outDate + t.bookTimeLimit)duedate FROM borrower_type t, (SELECT * FROM borrower b, (SELECT * FROM borrowing WHERE callNumber = "+callNumbers.get(i)+" AND copyNo = "+copyNumber+" AND INDATE IS NULL) c WHERE b.bid = c.bid) bc WHERE bc.type like t.type");
 							if(returnTime.next()){
-								new NotificationDialog (null, "Checked out!", "Book: "+returnTime.getInt("callNumber")+"\n Due: "+returnTime.getDate("duedate").toString());
+								new NotificationDialog (null, "Checked out!", "Book: "+returnTime.getInt("callNumber")+" Copy No: "+copyNumber+"\n Due: "+returnTime.getDate("duedate").toString());
 							}
 							rs3.close();
 							stm.close();

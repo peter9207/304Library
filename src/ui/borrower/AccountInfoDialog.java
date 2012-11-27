@@ -175,7 +175,7 @@ public class AccountInfoDialog extends JDialog{
 				} catch (NumberFormatException e) {
 					// TODO Auto-generated catch block
 					new NotificationDialog (owner, "ERROR!", "Your BID must be a number.");
-					e.printStackTrace();
+
 				}
 			}
 			
