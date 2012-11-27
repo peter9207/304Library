@@ -335,6 +335,12 @@ public class DatabaseHandler {
 			con.con.commit();
 
 			ps.close();
+			ResultSet rs;
+			Statement stm = con.con.createStatement();
+			rs = stm.executeQuery("Select * from borrower order by bid desc");
+			if(rs.next()){
+				new NotificationDialog (null, "Acount created!", "Your BID is "+rs.getInt("bid")+".");
+			}
 		}
 		catch (SQLException ex)
 		{
@@ -437,15 +443,15 @@ public class DatabaseHandler {
 				if (rs2.next()) {
 					int limit = rs2.getInt("bookTimeLimit");
 					for (int i = 0; i < callNumbers.size(); i++) {
-						System.out.println(i);
-						rs3 = stmt
+						rs3 = null;
+						Statement stm1 = con.con.createStatement();
+						rs3 = stm1
 								.executeQuery("select * from bookcopy where callNumber = "
 										+ callNumbers.get(i).toString()
-										+ " AND status LIKE 'in' or status LIKE 'on-hold'");
-						System.out.println("query ran");
+										+ " AND (status LIKE 'in' or status LIKE 'on-hold')");
+												
 						if (rs3.next()) {
 							copyNumber = rs3.getInt("copyNo");
-							System.out.println(copyNumber);
 							ps = con.con
 									.prepareStatement("INSERT INTO borrowing VALUES (borid_sequence.nextval,?,?,?,?,null)");
 							java.util.Date today = new java.util.Date();
@@ -470,9 +476,18 @@ public class DatabaseHandler {
 							ps.close();
 							con.con.commit();
 							System.out.println("executed update");
-
+							ResultSet returnTime;
+							Statement stm = con.con.createStatement();
+							returnTime = stm.executeQuery("SELECT bc.callNumber, (bc.outDate + t.bookTimeLimit)duedate FROM borrower_type t, (SELECT * FROM borrower b, (SELECT * FROM borrowing WHERE callNumber = "+callNumbers.get(i)+" AND copyNo = "+copyNumber+" AND INDATE IS NULL) c WHERE b.bid = c.bid) bc WHERE bc.type like t.type");
+							if(returnTime.next()){
+								new NotificationDialog (null, "Checked out!", "Book: "+returnTime.getInt("callNumber")+"\n Due: "+returnTime.getDate("duedate").toString());
+							}
+							rs3.close();
+							stm.close();
+							stm1.close();
+							
 						} else {
-							new NotificationDialog(null, "ERROR!","No more copies available! Unable to check out.");
+							new NotificationDialog(null, "ERROR!","No more copies available for Call Number "+callNumbers.get(i)+"! Unable to check out.");
 						}
 					}
 					con.con.commit();
@@ -522,28 +537,18 @@ public class DatabaseHandler {
 			String sql = "SELECT bc.borid, bc.outDate, (bc.outDate + t.bookTimeLimit)duedate FROM borrower_type t, (SELECT * FROM borrower b, (SELECT * FROM borrowing WHERE callNumber = "+callNumber+" AND copyNo = "+copyNumber+" AND INDATE IS NULL) c WHERE b.bid = c.bid) bc WHERE bc.type like t.type";
 
 				fineCheckSet = statement123.executeQuery(sql);
-				System.out.println("query fine check ran");
 
-				System.out.println(callNumber);
-				System.out.println(copyNumber);
+
 				ResultSetMetaData rsmd = fineCheckSet.getMetaData();
-				System.out.println(rsmd.getColumnCount());
 			if (fineCheckSet.next()) {
-				System.out.println("finecheckset is not empty");
 				//					long limit = fineCheckSet.getLong("bookTimeLimit");
 				java.sql.Date outDate1 = fineCheckSet.getDate("outDate");
 				java.util.Date duedate = new java.util.Date(fineCheckSet.getDate("duedate").getTime());
 				//					java.util.Date date = new java.util.Date(outDate1.getTime() + limit);
 				java.util.Date today = new java.util.Date();
-				System.out.println(outDate1);
-				System.out.println(duedate);
-				System.out.println(today);
-				System.out.print(duedate.before(today));
-
 				if (duedate.before(today)) {
 
 					int borid = fineCheckSet.getInt("borid");
-					System.out.println(borid);
 					ps = con.con
 							.prepareStatement("INSERT INTO fine VALUES (fid_sequence.nextval,'5',sysdate,null,?)");
 					ps.setInt(1, borid);
@@ -554,32 +559,19 @@ public class DatabaseHandler {
 			ps = con.con.prepareStatement("UPDATE borrowing SET indate = sysdate WHERE callNumber = ? AND copyNo = ?");
 			ps.setInt(1, callNumber);
 			ps.setInt(2, copyNumber);
-			System.out.println("before executing update");
 			int returned = ps.executeUpdate();
-			System.out.println("after executing update returned = "+returned);
 			if (returned==0){
 				new NotificationDialog(null, "ERROR!", "No books identified by the inputs are checked out. Unable to process return.");
 				ps.close();
 				return;
 			}
-			System.out.println("before commiting returned = "+returned);
 			con.con.commit();
 			ps.close();
-			System.out.println("updated borrowing");
 			stmt = con.con.createStatement();
 			rs = stmt.executeQuery("SELECT * FROM holdRequest WHERE CALLNUMBER = "+callNumber);
 			while(rs.next()){
 				holdRequests++;
 			}
-			//rs2 = stmt.executeQuery("SELECT * FROM bookCopy WHERE CALLNUMBER = "+callNumber+" AND status LIKE 'on-hold'");
-
-			//while (rs2.next()){
-			//	booksOnHold++;
-			//}
-
-			System.out.println(holdRequests);
-			//System.out.println(booksOnHold);
-			//if (rs.next() && rs2.next()){
 			if(holdRequests>0){
 
 				ps = con.con.prepareStatement("UPDATE bookcopy SET status = 'on-hold' where callNumber = ? AND copyNo = ?");
@@ -599,7 +591,6 @@ public class DatabaseHandler {
 					email = emails.getString("emailaddress");
 					bidEmail = emails.getInt("bid");
 					String nameEmail = emails.getString("name");
-				System.out.println(email);
 				if(!email.isEmpty()){
 					new NotificationDialog (null, "Notified Holder", "An email has been sent to "+email+", the first in line to recieve a held copy.");
 				}
@@ -617,10 +608,6 @@ public class DatabaseHandler {
 				ps.close();
 				stm.close();
 				emails.close();
-				//				ps = con.con.prepareStatement("DELETE FROM holdrequest WHERE hid = 2");
-				//				System.out.println(rs.getInt("hid"));
-				//				ps.executeUpdate();
-				//				ps.close();
 
 			}
 			else
@@ -629,19 +616,15 @@ public class DatabaseHandler {
 				ps.setInt(1, callNumber);
 				ps.setInt(2, copyNumber);
 				ps.executeUpdate();
-				System.out.println("update bookcopy set status in");
 			}
 			
-			System.out.println("after the if statemtent");
 			con.con.commit();
 			ps.close();
 			fineCheckSet.close();
 			statement123.close();
+			new NotificationDialog(null, "Returned!", "Book sucessfully returned.");
 
 
-
-			//	}
-			//	else System.out.println("rs/rs2 empty! \n");
 		} catch (SQLException e) {
 			new NotificationDialog(null, "Error", e.getMessage());
 		}
@@ -725,7 +708,6 @@ public class DatabaseHandler {
 				books.add(counter, new Object[numCols]);
 				for (int i = 0; i < numCols; i++) {
 					books.get(counter)[i] = rs2.getObject(i + 1);
-					System.out.println(rs2.getObject(i+1));
 				}
 				counter++;
 			}
@@ -758,7 +740,6 @@ public class DatabaseHandler {
 				books.add(counter, new Object[numCols]);
 				for (int i = 0; i < numCols; i++) {
 					books.get(counter)[i] = rs2.getObject(i + 1);
-					System.out.println(rs2.getObject(i+1));
 				}
 				counter++;
 			}
@@ -791,7 +772,6 @@ public class DatabaseHandler {
 				books.add(counter, new Object[numCols]);
 				for (int i = 0; i < numCols; i++) {
 					books.get(counter)[i] = rs2.getObject(i + 1);
-					System.out.println(rs2.getObject(i+1));
 				}
 				counter++;
 			}

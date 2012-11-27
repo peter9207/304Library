@@ -75,7 +75,6 @@ public class CheckOutDialog extends JDialog{
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
-				System.out.println("Add book button Pressed");
 				JTextArea callNumberTextComp = new JTextArea();
 				final String callNo = callNumber.getText();
 				books.addElement(callNo);

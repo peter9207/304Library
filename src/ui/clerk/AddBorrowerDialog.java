@@ -141,7 +141,7 @@ public class AddBorrowerDialog extends JDialog{
 		typePanel.add(typeLabel);
 
 		final String[] typeStrings = {"Student","Faculty","Staff","General Public"};
-		final JComboBox typeField = new JComboBox(typeStrings);
+		final JComboBox<String> typeField = new JComboBox<String>(typeStrings);
 		typeField.setSelectedIndex(0);
 		typePanel.add(typeField);
 		typeField.setPreferredSize(new Dimension(TEXT_BOX_WIDTH, TEXT_BOX_HEIGHT));
