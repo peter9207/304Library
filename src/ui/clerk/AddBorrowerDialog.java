@@ -185,7 +185,6 @@ public class AddBorrowerDialog extends JDialog{
 						expiryDateField.setText("");
 						sinOrStNoField.setText("");
 					} catch (ParseException e1) {
-						// TODO Auto-generated catch block
 						System.out.println("Parse exception");
 						new NotificationDialog(owner, "ERROR!","Please input the date in the following format: yyyy/mm/dd e.g. 2013/11/31 - 2013, November 31st.");
 					}
