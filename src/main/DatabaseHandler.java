@@ -226,7 +226,7 @@ public class DatabaseHandler {
 			"SELECT book.callNumber, book.isbn, book.title, bor.copyno, (bor.outdate + btl.bookTimeLimit) FROM BORROWING bor, book book, (SELECT b.name, b.bid, bt.bookTimeLimit FROM BORROWER b, BORROWER_TYPE bt WHERE B.TYPE LIKE BT.TYPE)btl WHERE bor.bid = btl.bid AND bor.callNumber = book.callNumber AND INDATE IS NULL ORDER BY book.callNumber";
 
 			filteredQuery =
-					"SELECT book.callNumber, book.isbn, book.title, bor.copyno, (bor.outdate + btl.bookTimeLimit) FROM BORROWING bor, book book, hassubject hs, (SELECT b.name, b.bid, bt.bookTimeLimit FROM BORROWER b, BORROWER_TYPE bt WHERE B.TYPE LIKE BT.TYPE)btl WHERE bor.bid = btl.bid AND bor.callNumber = book.callNumber AND INDATE IS NULL AND book.callNumber = hs.callNumber AND UPPER(hs.subject) LIKE '%"+searchTerms.toUpperCase().trim()+"%' ORDER BY book.callNumber";		
+					"SELECT distinct book.callNumber, book.isbn, book.title, bor.copyno, (bor.outdate + btl.bookTimeLimit) FROM BORROWING bor, book book, hassubject hs, (SELECT b.name, b.bid, bt.bookTimeLimit FROM BORROWER b, BORROWER_TYPE bt WHERE B.TYPE LIKE BT.TYPE)btl WHERE bor.bid = btl.bid AND bor.callNumber = book.callNumber AND INDATE IS NULL AND book.callNumber = hs.callNumber AND UPPER(hs.subject) LIKE '%"+searchTerms.toUpperCase().trim()+"%' ORDER BY book.callNumber";		
 			break;
 		
 		case MOST_POPULAR_REPORT:
@@ -401,7 +401,7 @@ public class DatabaseHandler {
 			// commit work 
 			con.con.commit();
 
-			new NotificationDialog(null, "Success", "Hold has been successfully placed. You will be emailed according to your position in the waiting list upon availability of this book.s");
+			new NotificationDialog(null, "Success", "Hold has been successfully placed. You will be emailed according to your position in the waiting list upon availability of this book.");
 			ps.close();
 
 		}
@@ -501,7 +501,7 @@ public class DatabaseHandler {
 				new NotificationDialog (null, "ERROR!", "This borrower has outstanding unpaid fines or his account is expired. ");
 			}
 		} catch (SQLException e) {
-			new NotificationDialog(null, "ERROR!", "Something went wrong somewhere in the Database Handler, method: check out. Damn.");
+			new NotificationDialog(null, "ERROR!", "Something went wrong somewhere in the Database Handler, method: check out. Damn. "+e.getMessage());
 			e.printStackTrace();
 			System.out.println("Message: " + e.getMessage());
 			try 
