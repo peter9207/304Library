@@ -62,11 +62,11 @@ public class AddBookDialog extends JDialog{
 		JPanel column1 = new JPanel();
 		column1.setLayout(new BoxLayout(column1, BoxLayout.PAGE_AXIS));
 
-		final DefaultListModel subjects = new DefaultListModel();
-		JList subjectList = new JList(subjects);
+		final DefaultListModel<String> subjects = new DefaultListModel<String>();
+		JList<String> subjectList = new JList<String>(subjects);
 
-		final DefaultListModel authors = new DefaultListModel();
-		JList authorList = new JList(authors);
+		final DefaultListModel<String> authors = new DefaultListModel<String>();
+		JList<String> authorList = new JList<String>(authors);
 
 		JPanel listViewer1 = new JPanel();
 		JPanel listViewer2 = new JPanel();
@@ -103,8 +103,12 @@ public class AddBookDialog extends JDialog{
 			public void keyReleased(KeyEvent arg0) {
 				if (arg0.getKeyCode()==KeyEvent.VK_ENTER){
 					final String sub = subjectField.getText();
-					subjects.addElement(sub);
-					subjectField.setText("");
+					if(!sub.isEmpty()){
+						if(!subjects.contains(sub)) {
+							subjects.addElement(sub);
+							subjectField.setText("");
+						}
+					}
 				}
 			}
 
@@ -131,8 +135,10 @@ public class AddBookDialog extends JDialog{
 				if (arg0.getKeyCode()==KeyEvent.VK_ENTER){
 					final String author = authorField.getText();
 					if(!author.isEmpty()){
-					authors.addElement(author);
-					authorField.setText("");
+						if(!authors.contains(author)) {
+							authors.addElement(author);
+							authorField.setText("");
+						}
 					}
 				}
 			}
@@ -183,9 +189,11 @@ public class AddBookDialog extends JDialog{
 				System.out.println("Add book button Pressed");
 				final String sub = subjectField.getText();
 				if(!sub.isEmpty()){
-					subjects.addElement(sub);
-					subjectField.setText("");
+					if(!subjects.contains(sub)) {
+						subjects.addElement(sub);
+						subjectField.setText("");
 					}
+				}
 			}
 		});
 		JButton addAuthor = new JButton();
@@ -197,9 +205,11 @@ public class AddBookDialog extends JDialog{
 				System.out.println("Add book button Pressed");
 				final String author = authorField.getText();
 				if(!author.isEmpty()){
-					authors.addElement(author);
-					authorField.setText("");
+					if(!authors.contains(author)) {
+						authors.addElement(author);
+						authorField.setText("");
 					}
+				}
 			}
 		});
 		column1.add(subjectField);
