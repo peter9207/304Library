@@ -102,7 +102,7 @@ public class AddBookDialog extends JDialog{
 			@Override
 			public void keyReleased(KeyEvent arg0) {
 				if (arg0.getKeyCode()==KeyEvent.VK_ENTER){
-					final String sub = subjectField.getText();
+					final String sub = subjectField.getText().trim();
 					if(!sub.isEmpty()){
 						if(!subjects.contains(sub)) {
 							subjects.addElement(sub);
@@ -133,7 +133,7 @@ public class AddBookDialog extends JDialog{
 			@Override
 			public void keyReleased(KeyEvent arg0) {
 				if (arg0.getKeyCode()==KeyEvent.VK_ENTER){
-					final String author = authorField.getText();
+					final String author = authorField.getText().trim();
 					if(!author.isEmpty()){
 						if(!authors.contains(author)) {
 							authors.addElement(author);
@@ -187,7 +187,7 @@ public class AddBookDialog extends JDialog{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				System.out.println("Add book button Pressed");
-				final String sub = subjectField.getText();
+				final String sub = subjectField.getText().trim();
 				if(!sub.isEmpty()){
 					if(!subjects.contains(sub)) {
 						subjects.addElement(sub);
@@ -203,7 +203,7 @@ public class AddBookDialog extends JDialog{
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				System.out.println("Add book button Pressed");
-				final String author = authorField.getText();
+				final String author = authorField.getText().trim();
 				if(!author.isEmpty()){
 					if(!authors.contains(author)) {
 						authors.addElement(author);
